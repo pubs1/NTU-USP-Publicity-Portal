@@ -4,8 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NTU Publicity Subcommittee Portal</title>
+  <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <!-- Firebase App & Realtime Database SDKs (Compat version for single-file web apps) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -13,9 +19,6 @@
       display: grid;
       grid-template-columns: repeat(7, minmax(0, 1fr));
     }
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
@@ -29,13 +32,18 @@
             <i class="fa-solid fa-bullhorn text-sm"></i>
           </div>
           <div>
-            <h1 class="text-base font-bold leading-tight">Publicity Subcomm Portal</h1>
+            <div class="flex items-center space-x-2">
+              <h1 class="text-base font-bold leading-tight">Publicity Subcomm Portal</h1>
+              <!-- Cloud Live Sync Indicator -->
+              <span id="syncBadge" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-950 text-emerald-400 border border-emerald-800" title="Connected to Cloud Realtime Database">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 animate-pulse"></span>Live Sync
+              </span>
+            </div>
             <p class="text-xs text-slate-400">NTU Calendar &bull; Tasks &bull; Reservations &bull; Points</p>
           </div>
         </div>
-
-        <!-- Exco Admin Lock Button (Mobile) -->
-        <button onclick="openAdminModal()" title="Exco Admin &amp; Succession Handover" class="sm:hidden px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700">
+        <!-- Exco Admin Button (Mobile) -->
+        <button onclick="openAdminModal()" title="Exco Settings & Handover" class="sm:hidden px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700">
           <i class="fa-solid fa-lock text-amber-400"></i>
         </button>
       </div>
@@ -54,9 +62,9 @@
         <button onclick="switchTab('points')" id="tab-points" class="nav-btn px-3 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
           <i class="fa-solid fa-coins mr-1.5"></i>Points Tracker
         </button>
-        <!-- Exco Admin Lock Button (Desktop) -->
-        <button onclick="openAdminModal()" title="Exco Admin &amp; Succession Handover" class="hidden sm:inline-flex items-center justify-center px-3 py-2 rounded-md text-xs sm:text-sm font-semibold transition bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 border border-slate-700">
-          <i class="fa-solid fa-lock text-amber-400"></i>
+        <!-- Sleek Lock Icon for Exco Admin (Desktop) -->
+        <button onclick="openAdminModal()" title="Exco Settings & Succession Handover" class="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-md text-xs sm:text-sm font-semibold transition bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 border border-slate-700">
+          <i class="fa-solid fa-lock text-amber-400 text-xs"></i>
         </button>
       </div>
     </div>
@@ -121,38 +129,38 @@
     <!-- ========================================== -->
     <!-- 2. PROGRESS CHECK & TASKS VIEW (SIDE BY SIDE) -->
     <!-- ========================================== -->
-    <section id="view-progress" class="tab-view hidden">
+    <section id="view-progress" class="tab-view hidden space-y-6">
       <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
         
-        <!-- Left Column: Publicity Posts Section -->
-        <div class="space-y-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-slate-100">
+        <!-- Left Column: Social Media Posts Progress -->
+        <div class="space-y-3 bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-3">
             <div>
-              <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
-                <span>Publicity Posts</span>
+              <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                <i class="fa-solid fa-bullhorn text-blue-600"></i>
+                <span>Publicity Posts Progress</span>
               </h2>
-              <p class="text-xs text-slate-500">Draft vetting, approvals, and target postings.</p>
+              <p class="text-xs text-slate-500">Track draft vetting deadlines, approvals, and posting status.</p>
             </div>
-            <button onclick="openAddPostModal()" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 shadow flex items-center space-x-1">
+            <button onclick="openAddPostModal()" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 shadow flex items-center space-x-1.5 whitespace-nowrap">
               <i class="fa-solid fa-plus"></i><span>New Post</span>
             </button>
           </div>
 
-          <div class="overflow-x-auto custom-scrollbar border border-slate-200 rounded-xl">
+          <div class="overflow-x-auto max-h-[620px]">
             <table class="w-full text-left text-xs border-collapse">
-              <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] font-semibold border-b border-slate-200">
+              <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] font-semibold sticky top-0 border-b border-slate-200 z-10">
                 <tr>
-                  <th class="py-2.5 px-3">Topic</th>
-                  <th class="py-2.5 px-2">Plat.</th>
-                  <th class="py-2.5 px-2">Vetting Due</th>
-                  <th class="py-2.5 px-2">Target</th>
+                  <th class="py-2.5 px-2">Topic</th>
+                  <th class="py-2.5 px-2">Platform</th>
+                  <th class="py-2.5 px-2">Due (Vetting)</th>
+                  <th class="py-2.5 px-2">Target Date</th>
                   <th class="py-2.5 px-2">PIC</th>
                   <th class="py-2.5 px-2">Design</th>
                   <th class="py-2.5 px-2">Caption</th>
                   <th class="py-2.5 px-2">Review</th>
                   <th class="py-2.5 px-2">Upload</th>
-                  <th class="py-2.5 px-2 text-center">Del</th>
+                  <th class="py-2.5 px-2 text-center">Action</th>
                 </tr>
               </thead>
               <tbody id="progressTableBody" class="divide-y divide-slate-100"></tbody>
@@ -160,32 +168,32 @@
           </div>
         </div>
 
-        <!-- Right Column: Miscellaneous Tasks Section -->
-        <div class="space-y-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-slate-100">
+        <!-- Right Column: Yearbook, Ultrasnapped & Other Tasks -->
+        <div class="space-y-3 bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-3">
             <div>
-              <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+              <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                <i class="fa-solid fa-list-check text-emerald-600"></i>
                 <span>Miscellaneous Tasks</span>
               </h2>
-              <p class="text-xs text-slate-500">Yearbook, ultrasnappedpics, and operations.</p>
+              <p class="text-xs text-slate-500">Yearbook, ultrasnappedpics, coverage, and operations.</p>
             </div>
-            <button onclick="openAddTaskModal()" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 shadow flex items-center space-x-1">
-              <i class="fa-solid fa-plus"></i><span>Add Task</span>
+            <button onclick="openAddTaskModal()" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 shadow flex items-center space-x-1.5 whitespace-nowrap">
+              <i class="fa-solid fa-plus"></i><span>New Task</span>
             </button>
           </div>
 
-          <div class="overflow-x-auto custom-scrollbar border border-slate-200 rounded-xl">
+          <div class="overflow-x-auto max-h-[620px]">
             <table class="w-full text-left text-xs border-collapse">
-              <thead class="bg-emerald-50 text-emerald-900 uppercase text-[10px] font-semibold border-b border-emerald-100">
+              <thead class="bg-emerald-50 text-emerald-900 uppercase text-[10px] font-semibold sticky top-0 border-b border-emerald-100 z-10">
                 <tr>
-                  <th class="py-2.5 px-3">Task Name</th>
+                  <th class="py-2.5 px-2">Task</th>
                   <th class="py-2.5 px-2">Category</th>
                   <th class="py-2.5 px-2">Due Date</th>
-                  <th class="py-2.5 px-2">Assigned</th>
+                  <th class="py-2.5 px-2">Assignee</th>
                   <th class="py-2.5 px-2">Status</th>
                   <th class="py-2.5 px-2">Notes</th>
-                  <th class="py-2.5 px-2 text-center">Del</th>
+                  <th class="py-2.5 px-2 text-center">Action</th>
                 </tr>
               </thead>
               <tbody id="tasksTableBody" class="divide-y divide-slate-100"></tbody>
@@ -338,8 +346,9 @@
   </main>
 
   <!-- ============================================================== -->
-  <!-- MODAL: ADD / SCHEDULE POST -->
+  <!-- MODALS: ADD & EDIT POST -->
   <!-- ============================================================== -->
+  <!-- 1. Add Post -->
   <div id="addPostModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
       <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -384,9 +393,56 @@
     </div>
   </div>
 
+  <!-- 2. Edit Post Modal -->
+  <div id="editPostModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+          <i class="fa-solid fa-pen-to-square text-blue-600"></i><span>Edit Post Details</span>
+        </h3>
+        <button onclick="closeModal('editPostModal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+      </div>
+      <form onsubmit="handleUpdatePostDetails(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="editPostId" />
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Post Title / Topic *</label>
+          <input type="text" id="editPostTopic" required class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Platform *</label>
+          <select id="editPostPlatform" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="Instagram">Instagram</option>
+            <option value="Telegram">Telegram</option>
+            <option value="Instagram &amp; Telegram">Instagram &amp; Telegram</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-orange-700 mb-1">Internal Due (Vetting) *</label>
+            <input type="date" id="editPostInternalDate" required class="w-full border border-orange-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-orange-500 bg-orange-50/30" />
+          </div>
+          <div>
+            <label class="block font-medium text-blue-700 mb-1">Target Post Date *</label>
+            <input type="date" id="editPostTargetDate" required class="w-full border border-blue-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50/30" />
+          </div>
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Assigned PIC</label>
+          <input type="text" id="editPostPic" placeholder="e.g. Sarah" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeModal('editPostModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow">Update Post</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ============================================================== -->
-  <!-- MODAL: ADD MISC TASK (YEARBOOK, ULTRASNAPPEDPICS, OTHER) -->
+  <!-- MODALS: ADD & EDIT MISC TASK -->
   <!-- ============================================================== -->
+  <!-- 1. Add Task Modal -->
   <div id="addTaskModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
       <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -398,7 +454,7 @@
       <form onsubmit="handleSaveTask(event)" class="space-y-3 text-xs">
         <div>
           <label class="block font-medium text-slate-700 mb-1">Task Title *</label>
-          <input type="text" id="taskTitle" required placeholder="e.g. Yearbook subcommittee interview layout" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
+          <input type="text" id="taskTitle" required placeholder="e.g. Subcomm interview layout" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
         </div>
         <div>
           <label class="block font-medium text-slate-700 mb-1">Category *</label>
@@ -418,11 +474,54 @@
         </div>
         <div>
           <label class="block font-medium text-slate-700 mb-1">Notes / Link (Optional)</label>
-          <textarea id="taskNotes" rows="2" placeholder="e.g. Google Drive draft folder link" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+          <textarea id="taskNotes" rows="2" placeholder="e.g. Drive folder or reference link" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
         </div>
         <div class="flex justify-end space-x-2 pt-2">
           <button type="button" onclick="closeModal('addTaskModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
           <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-semibold shadow">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Edit Task Modal -->
+  <div id="editTaskModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+          <i class="fa-solid fa-pen-to-square text-emerald-600"></i><span>Edit Task Details</span>
+        </h3>
+        <button onclick="closeModal('editTaskModal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+      </div>
+      <form onsubmit="handleUpdateTaskDetails(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="editTaskId" />
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Task Title *</label>
+          <input type="text" id="editTaskTitle" required class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Category *</label>
+          <select id="editTaskCategory" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="ultrasnappedpics">ultrasnappedpics</option>
+            <option value="yearbook">yearbook</option>
+            <option value="other">other</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Due Date *</label>
+          <input type="date" id="editTaskDueDate" required class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Assigned Member(s)</label>
+          <input type="text" id="editTaskAssignee" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Notes / Link (Optional)</label>
+          <textarea id="editTaskNotes" rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeModal('editTaskModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-semibold shadow">Update Task</button>
         </div>
       </form>
     </div>
@@ -435,7 +534,7 @@
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
       <div class="flex justify-between items-center border-b border-slate-100 pb-3">
         <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-          <i class="fa-solid fa-shield-halved text-amber-500"></i>
+          <i class="fa-solid fa-lock text-amber-500"></i>
           <span>Exco Succession &amp; Calendar Admin</span>
         </h3>
         <button onclick="closeModal('adminModal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
@@ -453,6 +552,7 @@
 
       <!-- Unlocked Admin Controls -->
       <div id="adminUnlockedContent" class="hidden space-y-5 text-xs">
+        
         <!-- Tab Sub-Navigation inside Admin -->
         <div class="flex border-b border-slate-200">
           <button onclick="switchAdminSubTab('dates')" id="btn-sub-dates" class="pb-2 font-bold text-blue-600 border-b-2 border-blue-600 px-3">
@@ -500,7 +600,7 @@
               <span>Succession Handover: Clean Slate</span>
             </h4>
             <p class="text-[11px] leading-relaxed">
-              When handing over to the incoming publicity head, this action removes all existing posts, tasks, reservations, and member points—resetting the portal back to an empty slate with 0 members.
+              When handing over to the incoming publicity head, this action wipes all existing posts, tasks, reservations, and member points from the cloud database—resetting the portal back to 0 members for everyone.
             </p>
           </div>
           <div class="space-y-2 pt-1">
@@ -522,20 +622,30 @@
             </button>
           </div>
         </div>
+
       </div>
     </div>
   </div>
 
   <!-- ============================================================== -->
-  <!-- APPLICATION SCRIPT & LOCAL DATA STORE -->
+  <!-- APPLICATION SCRIPT & CLOUD REALTIME DATABASE -->
   <!-- ============================================================== -->
   <script>
-    // State Store Keys
-    const STORAGE_KEY_POSTS = 'ntu_pubcomm_posts';
-    const STORAGE_KEY_TASKS = 'ntu_pubcomm_tasks';
-    const STORAGE_KEY_LOGS = 'ntu_pubcomm_logs';
-    const STORAGE_KEY_ACAD = 'ntu_pubcomm_acad_events';
-    const STORAGE_KEY_PIN = 'ntu_pubcomm_exco_pin';
+    // -------------------------------------------------------------
+    // FIREBASE INITIALIZATION & REALTIME DATABASE CONNECTION
+    // -------------------------------------------------------------
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVEK_KurtzW1k7UTdKimnkG9FP8iWuBis",
+      authDomain: "ntuusp-publicity-portal.firebaseapp.com",
+      databaseURL: "https://ntuusp-publicity-portal-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "ntuusp-publicity-portal",
+      storageBucket: "ntuusp-publicity-portal.firebasestorage.app",
+      messagingSenderId: "1020851819679",
+      appId: "1:1020851819679:web:f2714f087ce7c02d00beaa"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
     // Default Academic Calendar Events
     const DEFAULT_ACAD_EVENTS = [
@@ -557,37 +667,83 @@
       { id: 'ntu6', title: 'AY27/28 Sem 1 Finals', type: 'finals', start: '2027-11-15', end: '2027-12-03' }
     ];
 
-    // State Variables
-    let posts = JSON.parse(localStorage.getItem(STORAGE_KEY_POSTS)) || [];
-    let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY_TASKS)) || [];
-    let pointsLogs = JSON.parse(localStorage.getItem(STORAGE_KEY_LOGS)) || [];
-    let acadEvents = JSON.parse(localStorage.getItem(STORAGE_KEY_ACAD)) || DEFAULT_ACAD_EVENTS;
-    let excoPin = localStorage.getItem(STORAGE_KEY_PIN) || '1234';
+    // In-memory data states
+    let posts = [];
+    let tasks = [];
+    let pointsLogs = [];
+    let acadEvents = DEFAULT_ACAD_EVENTS;
+    let excoPin = '1234';
 
-    // Calendar navigation state
+    // Calendar state
     let currentDate = new Date();
 
-    // Init
-    document.addEventListener('DOMContentLoaded', () => {
-      renderCalendar();
-      renderProgressTable();
-      renderTasksTable();
-      renderReservationTable();
-      renderPointsDashboard();
-      updatePointPreview();
+    // -------------------------------------------------------------
+    // CLOUD DATABASE LISTENERS (AUTO-SYNC ACROSS ALL DEVICES)
+    // -------------------------------------------------------------
+    function initCloudListeners() {
+      // 1. Sync Posts
+      db.ref('posts').on('value', snapshot => {
+        const val = snapshot.val();
+        posts = val ? (Array.isArray(val) ? val : Object.values(val)) : [];
+        renderCalendar();
+        renderProgressTable();
+        renderReservationTable();
+      });
 
+      // 2. Sync Tasks
+      db.ref('tasks').on('value', snapshot => {
+        const val = snapshot.val();
+        tasks = val ? (Array.isArray(val) ? val : Object.values(val)) : [];
+        renderCalendar();
+        renderTasksTable();
+      });
+
+      // 3. Sync Points Logs
+      db.ref('pointsLogs').on('value', snapshot => {
+        const val = snapshot.val();
+        pointsLogs = val ? (Array.isArray(val) ? val : Object.values(val)) : [];
+        renderPointsDashboard();
+      });
+
+      // 4. Sync Academic Events
+      db.ref('acadEvents').on('value', snapshot => {
+        const val = snapshot.val();
+        if (val) {
+          acadEvents = Array.isArray(val) ? val : Object.values(val);
+        } else {
+          acadEvents = DEFAULT_ACAD_EVENTS;
+          db.ref('acadEvents').set(DEFAULT_ACAD_EVENTS);
+        }
+        renderCalendar();
+        renderAcademicEventsList();
+      });
+
+      // 5. Sync Exco PIN
+      db.ref('excoPin').on('value', snapshot => {
+        const val = snapshot.val();
+        if (val) {
+          excoPin = val;
+        } else {
+          db.ref('excoPin').set('1234');
+        }
+      });
+    }
+
+    // Cloud Write Helpers
+    function syncPostsToCloud() { db.ref('posts').set(posts); }
+    function syncTasksToCloud() { db.ref('tasks').set(tasks); }
+    function syncLogsToCloud() { db.ref('pointsLogs').set(pointsLogs); }
+    function syncAcadEventsToCloud() { db.ref('acadEvents').set(acadEvents); }
+
+    // Init App
+    document.addEventListener('DOMContentLoaded', () => {
+      initCloudListeners();
+      renderCalendar();
+      updatePointPreview();
       const todayIso = new Date().toISOString().split('T')[0];
       const logDateInput = document.getElementById('logDate');
       if (logDateInput) logDateInput.value = todayIso;
     });
-
-    function saveAll() {
-      localStorage.setItem(STORAGE_KEY_POSTS, JSON.stringify(posts));
-      localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(tasks));
-      localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(pointsLogs));
-      localStorage.setItem(STORAGE_KEY_ACAD, JSON.stringify(acadEvents));
-      localStorage.setItem(STORAGE_KEY_PIN, excoPin);
-    }
 
     // Tab Navigation
     function switchTab(tabId) {
@@ -596,7 +752,6 @@
         btn.classList.remove('bg-blue-600', 'text-white');
         btn.classList.add('text-slate-300');
       });
-
       const activeView = document.getElementById(`view-${tabId}`);
       const activeBtn = document.getElementById(`tab-${tabId}`);
       if (activeView) activeView.classList.remove('hidden');
@@ -604,17 +759,15 @@
         activeBtn.classList.add('bg-blue-600', 'text-white');
         activeBtn.classList.remove('text-slate-300');
       }
-
       if (tabId === 'calendar') renderCalendar();
       if (tabId === 'progress') { renderProgressTable(); renderTasksTable(); }
       if (tabId === 'reservation') renderReservationTable();
       if (tabId === 'points') renderPointsDashboard();
     }
 
-    // Modal helpers
+    // Modal Helpers
     function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
     function openAddPostModal(date = '') {
       if (date) {
         document.getElementById('postTargetDate').value = date;
@@ -622,7 +775,6 @@
       }
       openModal('addPostModal');
     }
-
     function openAddTaskModal() { openModal('addTaskModal'); }
 
     // ==========================================
@@ -632,14 +784,15 @@
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth();
       const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      document.getElementById('calendarMonthYear').innerText = `${monthNames[month]} ${year}`;
+      const headerEl = document.getElementById('calendarMonthYear');
+      if (headerEl) headerEl.innerText = `${monthNames[month]} ${year}`;
 
       const firstDay = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const daysInPrevMonth = new Date(year, month, 0).getDate();
       const grid = document.getElementById('calendarGrid');
+      if (!grid) return;
       grid.innerHTML = '';
-
       const todayStr = new Date().toISOString().split('T')[0];
 
       // Previous month padding
@@ -655,10 +808,9 @@
       for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const isToday = dateStr === todayStr;
-
         const cell = document.createElement('div');
         cell.className = `bg-white p-1.5 min-h-[95px] text-xs flex flex-col group relative transition-colors hover:bg-slate-50 ${isToday ? 'ring-2 ring-blue-500 z-10' : ''}`;
-
+        
         let dayHeader = `
           <div class="flex justify-between items-center mb-1">
             <span class="font-bold ${isToday ? 'w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px]' : 'text-slate-700'}">${day}</span>
@@ -680,24 +832,24 @@
           }
         });
 
-        // Internal Submission Due Date Badges
+        // Posts Badges (Clickable to Edit)
         posts.forEach(p => {
           if (p.internalDate === dateStr) {
-            badgesHtml += `<div class="px-1.5 py-0.5 rounded text-[10px] bg-orange-100 text-orange-900 border border-orange-300 font-medium truncate" title="Draft Due: ${p.topic}">
+            badgesHtml += `<div onclick="openEditPostModal('${p.id}')" class="px-1.5 py-0.5 rounded text-[10px] bg-orange-100 text-orange-900 border border-orange-300 font-medium truncate cursor-pointer hover:bg-orange-200" title="Draft Due: ${p.topic} (Click to edit)">
               <i class="fa-solid fa-file-pen mr-1 text-orange-600"></i>${p.topic}
             </div>`;
           }
           if (p.targetDate === dateStr) {
-            badgesHtml += `<div class="px-1.5 py-0.5 rounded text-[10px] bg-blue-100 text-blue-900 border border-blue-300 font-semibold truncate" title="Post: ${p.topic} (${p.platform})">
+            badgesHtml += `<div onclick="openEditPostModal('${p.id}')" class="px-1.5 py-0.5 rounded text-[10px] bg-blue-100 text-blue-900 border border-blue-300 font-semibold truncate cursor-pointer hover:bg-blue-200" title="Post: ${p.topic} (${p.platform}) (Click to edit)">
               <i class="fa-solid fa-upload mr-1 text-blue-600"></i>${p.topic}
             </div>`;
           }
         });
 
-        // Misc Task Due Dates
+        // Tasks Badges (Clickable to Edit)
         tasks.forEach(t => {
           if (t.dueDate === dateStr) {
-            badgesHtml += `<div class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-900 border border-emerald-300 font-medium truncate" title="Task Due: ${t.title}">
+            badgesHtml += `<div onclick="openEditTaskModal('${t.id}')" class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-900 border border-emerald-300 font-medium truncate cursor-pointer hover:bg-emerald-200" title="Task Due: ${t.title} (Click to edit)">
               <i class="fa-solid fa-check mr-1 text-emerald-600"></i>${t.title}
             </div>`;
           }
@@ -749,13 +901,38 @@
       };
 
       posts.push(newPost);
-      saveAll();
+      syncPostsToCloud();
       closeModal('addPostModal');
       document.getElementById('postTopic').value = '';
       document.getElementById('postPic').value = '';
-      renderCalendar();
-      renderProgressTable();
-      renderReservationTable();
+    }
+
+    function openEditPostModal(id) {
+      const p = posts.find(item => item.id === id);
+      if (!p) return;
+      document.getElementById('editPostId').value = p.id;
+      document.getElementById('editPostTopic').value = p.topic || '';
+      document.getElementById('editPostPlatform').value = p.platform || 'Instagram';
+      document.getElementById('editPostInternalDate').value = p.internalDate || '';
+      document.getElementById('editPostTargetDate').value = p.targetDate || '';
+      document.getElementById('editPostPic').value = p.pic === 'Unassigned' ? '' : p.pic;
+      openModal('editPostModal');
+    }
+
+    function handleUpdatePostDetails(e) {
+      e.preventDefault();
+      const id = document.getElementById('editPostId').value;
+      const p = posts.find(item => item.id === id);
+      if (p) {
+        p.topic = document.getElementById('editPostTopic').value.trim();
+        p.platform = document.getElementById('editPostPlatform').value;
+        p.internalDate = document.getElementById('editPostInternalDate').value;
+        p.targetDate = document.getElementById('editPostTargetDate').value;
+        const picVal = document.getElementById('editPostPic').value.trim();
+        p.pic = picVal || 'Unassigned';
+        syncPostsToCloud();
+        closeModal('editPostModal');
+      }
     }
 
     function handleSaveTask(e) {
@@ -777,13 +954,39 @@
       };
 
       tasks.push(newTask);
-      saveAll();
+      syncTasksToCloud();
       closeModal('addTaskModal');
       document.getElementById('taskTitle').value = '';
       document.getElementById('taskAssignee').value = '';
       document.getElementById('taskNotes').value = '';
-      renderCalendar();
-      renderTasksTable();
+    }
+
+    function openEditTaskModal(id) {
+      const t = tasks.find(item => item.id === id);
+      if (!t) return;
+      document.getElementById('editTaskId').value = t.id;
+      document.getElementById('editTaskTitle').value = t.title || '';
+      document.getElementById('editTaskCategory').value = t.category || 'other';
+      document.getElementById('editTaskDueDate').value = t.dueDate || '';
+      document.getElementById('editTaskAssignee').value = t.assignee === 'Unassigned' ? '' : t.assignee;
+      document.getElementById('editTaskNotes').value = t.notes || '';
+      openModal('editTaskModal');
+    }
+
+    function handleUpdateTaskDetails(e) {
+      e.preventDefault();
+      const id = document.getElementById('editTaskId').value;
+      const t = tasks.find(item => item.id === id);
+      if (t) {
+        t.title = document.getElementById('editTaskTitle').value.trim();
+        t.category = document.getElementById('editTaskCategory').value;
+        t.dueDate = document.getElementById('editTaskDueDate').value;
+        const assigneeVal = document.getElementById('editTaskAssignee').value.trim();
+        t.assignee = assigneeVal || 'Unassigned';
+        t.notes = document.getElementById('editTaskNotes').value.trim();
+        syncTasksToCloud();
+        closeModal('editTaskModal');
+      }
     }
 
     function renderProgressTable() {
@@ -792,7 +995,7 @@
       tbody.innerHTML = '';
 
       if (posts.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-6 text-slate-400 italic">No posts scheduled yet.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-6 text-slate-400 italic">No posts scheduled yet. Click "New Post" to start.</td></tr>`;
         return;
       }
 
@@ -800,42 +1003,43 @@
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50/70 transition';
         tr.innerHTML = `
-          <td class="py-2.5 px-3 font-semibold text-slate-900">${p.topic}</td>
-          <td class="py-2.5 px-2 text-slate-600">${p.platform}</td>
-          <td class="py-2.5 px-2 text-orange-700 font-medium">${p.internalDate || '-'}</td>
-          <td class="py-2.5 px-2 text-blue-700 font-medium">${p.targetDate || '-'}</td>
-          <td class="py-2.5 px-2 font-medium text-slate-800">${p.pic}</td>
-          <td class="py-2.5 px-2">
-            <select onchange="updatePostField('${p.id}', 'designStatus', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-xs">
+          <td class="py-2 px-2 font-semibold text-slate-900">${p.topic}</td>
+          <td class="py-2 px-2 text-slate-600">${p.platform}</td>
+          <td class="py-2 px-2 text-orange-700 font-medium whitespace-nowrap">${p.internalDate || '-'}</td>
+          <td class="py-2 px-2 text-blue-700 font-medium whitespace-nowrap">${p.targetDate || '-'}</td>
+          <td class="py-2 px-2 font-medium text-slate-800">${p.pic}</td>
+          <td class="py-2 px-2">
+            <select onchange="updatePostField('${p.id}', 'designStatus', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-[11px]">
               <option ${p.designStatus === 'Not Started' ? 'selected' : ''}>Not Started</option>
               <option ${p.designStatus === 'In Progress' ? 'selected' : ''}>In Progress</option>
               <option ${p.designStatus === 'Completed' ? 'selected' : ''}>Completed</option>
             </select>
           </td>
-          <td class="py-2.5 px-2">
-            <select onchange="updatePostField('${p.id}', 'captionStatus', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-xs">
+          <td class="py-2 px-2">
+            <select onchange="updatePostField('${p.id}', 'captionStatus', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-[11px]">
               <option ${p.captionStatus === 'Not Started' ? 'selected' : ''}>Not Started</option>
               <option ${p.captionStatus === 'Drafting' ? 'selected' : ''}>Drafting</option>
               <option ${p.captionStatus === 'Reviewing' ? 'selected' : ''}>Reviewing</option>
               <option ${p.captionStatus === 'Completed' ? 'selected' : ''}>Completed</option>
             </select>
           </td>
-          <td class="py-2.5 px-2">
-            <select onchange="updatePostField('${p.id}', 'reviewPhase', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-xs font-semibold ${p.reviewPhase === 'Approved' ? 'text-emerald-600' : 'text-amber-600'}">
+          <td class="py-2 px-2">
+            <select onchange="updatePostField('${p.id}', 'reviewPhase', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-[11px] font-semibold ${p.reviewPhase === 'Approved' ? 'text-emerald-600' : 'text-amber-600'}">
               <option ${p.reviewPhase === 'Pending Draft' ? 'selected' : ''}>Pending Draft</option>
               <option ${p.reviewPhase === 'Vetting' ? 'selected' : ''}>Vetting</option>
               <option ${p.reviewPhase === 'Pending Edits' ? 'selected' : ''}>Pending Edits</option>
               <option ${p.reviewPhase === 'Approved' ? 'selected' : ''}>Approved</option>
             </select>
           </td>
-          <td class="py-2.5 px-2">
-            <select onchange="updatePostField('${p.id}', 'uploadStatus', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-xs">
+          <td class="py-2 px-2">
+            <select onchange="updatePostField('${p.id}', 'uploadStatus', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-[11px]">
               <option ${p.uploadStatus === 'Not Scheduled' ? 'selected' : ''}>Not Scheduled</option>
               <option ${p.uploadStatus === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
               <option ${p.uploadStatus === 'Published' ? 'selected' : ''}>Published</option>
             </select>
           </td>
-          <td class="py-2.5 px-2 text-center">
+          <td class="py-2 px-2 text-center whitespace-nowrap space-x-1.5">
+            <button onclick="openEditPostModal('${p.id}')" class="text-blue-600 hover:text-blue-800" title="Edit Post Details"><i class="fa-solid fa-pen-to-square"></i></button>
             <button onclick="deletePost('${p.id}')" class="text-rose-500 hover:text-rose-700" title="Delete Post"><i class="fa-regular fa-trash-can"></i></button>
           </td>
         `;
@@ -847,18 +1051,14 @@
       const p = posts.find(item => item.id === id);
       if (p) {
         p[field] = value;
-        saveAll();
-        renderCalendar();
+        syncPostsToCloud();
       }
     }
 
     function deletePost(id) {
       if (!confirm('Are you sure you want to remove this post?')) return;
       posts = posts.filter(item => item.id !== id);
-      saveAll();
-      renderCalendar();
-      renderProgressTable();
-      renderReservationTable();
+      syncPostsToCloud();
     }
 
     function renderTasksTable() {
@@ -867,7 +1067,7 @@
       tbody.innerHTML = '';
 
       if (tasks.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400 italic">No miscellaneous tasks logged yet.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-slate-400 italic">No tasks logged yet. Click "New Task" to record one.</td></tr>`;
         return;
       }
 
@@ -875,20 +1075,21 @@
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50/70 transition';
         tr.innerHTML = `
-          <td class="py-2.5 px-3 font-semibold text-slate-900">${t.title}</td>
-          <td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-medium">${t.category}</span></td>
-          <td class="py-2.5 px-2 text-emerald-800 font-semibold">${t.dueDate}</td>
-          <td class="py-2.5 px-2 font-medium text-slate-800">${t.assignee}</td>
-          <td class="py-2.5 px-2">
-            <select onchange="updateTaskStatus('${t.id}', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-xs font-semibold ${t.status === 'Completed' ? 'text-emerald-600' : 'text-slate-700'}">
+          <td class="py-2 px-2 font-semibold text-slate-900">${t.title}</td>
+          <td class="py-2 px-2"><span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-medium">${t.category}</span></td>
+          <td class="py-2 px-2 text-emerald-800 font-semibold whitespace-nowrap">${t.dueDate}</td>
+          <td class="py-2 px-2 font-medium text-slate-800">${t.assignee}</td>
+          <td class="py-2 px-2">
+            <select onchange="updateTaskStatus('${t.id}', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-[11px] font-semibold ${t.status === 'Completed' ? 'text-emerald-600' : 'text-slate-700'}">
               <option ${t.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
               <option ${t.status === 'Review' ? 'selected' : ''}>Review</option>
               <option ${t.status === 'Completed' ? 'selected' : ''}>Completed</option>
             </select>
           </td>
-          <td class="py-2.5 px-2 text-slate-500 text-xs truncate max-w-[120px]">${t.notes || '-'}</td>
-          <td class="py-2.5 px-2 text-center">
-            <button onclick="deleteTask('${t.id}')" class="text-rose-500 hover:text-rose-700"><i class="fa-regular fa-trash-can"></i></button>
+          <td class="py-2 px-2 text-slate-500 text-[11px] truncate max-w-xs">${t.notes || '-'}</td>
+          <td class="py-2 px-2 text-center whitespace-nowrap space-x-1.5">
+            <button onclick="openEditTaskModal('${t.id}')" class="text-emerald-600 hover:text-emerald-800" title="Edit Task Details"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button onclick="deleteTask('${t.id}')" class="text-rose-500 hover:text-rose-700" title="Delete Task"><i class="fa-regular fa-trash-can"></i></button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -899,16 +1100,14 @@
       const t = tasks.find(item => item.id === id);
       if (t) {
         t.status = status;
-        saveAll();
+        syncTasksToCloud();
       }
     }
 
     function deleteTask(id) {
       if (!confirm('Remove this task?')) return;
       tasks = tasks.filter(item => item.id !== id);
-      saveAll();
-      renderCalendar();
-      renderTasksTable();
+      syncTasksToCloud();
     }
 
     // ==========================================
@@ -927,8 +1126,14 @@
       posts.forEach(p => {
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50/70 transition';
+
         const interestedList = (p.interested && p.interested.length > 0)
-          ? p.interested.map(name => `<span class="inline-block px-2 py-0.5 bg-slate-100 rounded text-slate-700 font-medium mr-1 mb-1">${name}</span>`).join('')
+          ? p.interested.map(name => `
+              <span class="inline-flex items-center px-2 py-0.5 bg-slate-100 rounded text-slate-700 font-medium mr-1 mb-1 text-xs">
+                ${name}
+                <button onclick="removeInterest('${p.id}', '${name}')" class="ml-1 text-slate-400 hover:text-rose-600">&times;</button>
+              </span>
+            `).join('')
           : '<span class="text-slate-400 italic">None yet</span>';
 
         tr.innerHTML = `
@@ -947,7 +1152,8 @@
               <input type="text" value="${p.pic === 'Unassigned' ? '' : p.pic}" placeholder="Official PIC" onchange="allocatePic('${p.id}', this.value)" class="border border-blue-200 bg-blue-50/40 rounded px-2.5 py-1 text-xs font-semibold text-blue-900 w-32 outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
           </td>
-          <td class="py-3 px-3 text-center">
+          <td class="py-3 px-3 text-center whitespace-nowrap space-x-2">
+            <button onclick="openEditPostModal('${p.id}')" class="text-blue-600 hover:text-blue-800" title="Edit Post Details"><i class="fa-solid fa-pen-to-square"></i></button>
             <button onclick="clearReservations('${p.id}')" class="text-xs text-slate-400 hover:text-slate-600" title="Clear Interest Names">Clear List</button>
           </td>
         `;
@@ -959,24 +1165,31 @@
       const input = document.getElementById(`reserve_input_${postId}`);
       const name = input.value.trim();
       if (!name) return;
+
       const p = posts.find(item => item.id === postId);
       if (p) {
         if (!p.interested) p.interested = [];
         if (!p.interested.includes(name)) {
           p.interested.push(name);
-          saveAll();
-          renderReservationTable();
+          syncPostsToCloud();
         }
       }
       input.value = '';
+    }
+
+    function removeInterest(postId, memberName) {
+      const p = posts.find(item => item.id === postId);
+      if (p && p.interested) {
+        p.interested = p.interested.filter(n => n !== memberName);
+        syncPostsToCloud();
+      }
     }
 
     function allocatePic(postId, newPic) {
       const p = posts.find(item => item.id === postId);
       if (p) {
         p.pic = newPic.trim() || 'Unassigned';
-        saveAll();
-        renderProgressTable();
+        syncPostsToCloud();
       }
     }
 
@@ -984,8 +1197,7 @@
       const p = posts.find(item => item.id === postId);
       if (p) {
         p.interested = [];
-        saveAll();
-        renderReservationTable();
+        syncPostsToCloud();
       }
     }
 
@@ -1015,16 +1227,15 @@
       };
 
       pointsLogs.unshift(newLog);
-      saveAll();
+      syncLogsToCloud();
       document.getElementById('logMemberName').value = '';
       document.getElementById('logDescription').value = '';
-      renderPointsDashboard();
     }
 
     function renderPointsDashboard() {
-      // 1. Group points per member
       const memberTotals = {};
       const memberCount = {};
+
       pointsLogs.forEach(entry => {
         const mem = entry.member;
         memberTotals[mem] = (memberTotals[mem] || 0) + entry.points;
@@ -1050,7 +1261,6 @@
         }
       }
 
-      // 2. Render activity history table
       const activityTbody = document.getElementById('activityLogTableBody');
       if (activityTbody) {
         activityTbody.innerHTML = '';
@@ -1077,12 +1287,11 @@
     function deletePointLog(id) {
       if (!confirm('Remove this point entry?')) return;
       pointsLogs = pointsLogs.filter(l => l.id !== id);
-      saveAll();
-      renderPointsDashboard();
+      syncLogsToCloud();
     }
 
     // ==========================================
-    // EXCO ADMIN & SUCCESSION CONTROLS
+    // EXCO ADMIN & SUCCESSION CONTROLS (OPTION 2)
     // ==========================================
     function openAdminModal() {
       document.getElementById('adminAuthLock').classList.remove('hidden');
@@ -1116,10 +1325,12 @@
       const container = document.getElementById('academicEventsList');
       if (!container) return;
       container.innerHTML = '';
+
       if (acadEvents.length === 0) {
         container.innerHTML = `<p class="text-xs text-slate-400 italic">No events configured.</p>`;
         return;
       }
+
       acadEvents.forEach(evt => {
         const item = document.createElement('div');
         item.className = 'flex justify-between items-center text-xs p-1.5 hover:bg-slate-50 rounded';
@@ -1142,7 +1353,6 @@
       const type = document.getElementById('newEventType').value;
       const start = document.getElementById('newEventStart').value;
       const end = document.getElementById('newEventEnd').value;
-
       if (!title || !start || !end) return;
 
       acadEvents.push({
@@ -1153,17 +1363,13 @@
         end
       });
 
-      saveAll();
-      renderAcademicEventsList();
-      renderCalendar();
+      syncAcadEventsToCloud();
       document.getElementById('newEventName').value = '';
     }
 
     function deleteAcademicEvent(id) {
       acadEvents = acadEvents.filter(e => e.id !== id);
-      saveAll();
-      renderAcademicEventsList();
-      renderCalendar();
+      syncAcadEventsToCloud();
     }
 
     function handleUpdatePin() {
@@ -1173,12 +1379,12 @@
         return;
       }
       excoPin = newPin;
-      saveAll();
+      db.ref('excoPin').set(newPin);
       document.getElementById('newMasterPin').value = '';
-      alert('Exco Master PIN has been updated successfully.');
+      alert('Exco Master PIN has been updated successfully in the cloud.');
     }
 
-    // Handover Clean Slate Reset
+    // Succession Clean Slate Reset
     function handleCleanSlateReset() {
       const confirmText = document.getElementById('resetConfirmationInput').value.trim();
       if (confirmText !== 'RESET') {
@@ -1186,20 +1392,14 @@
         return;
       }
 
-      // Reset all user lists to empty slate
-      posts = [];
-      tasks = [];
-      pointsLogs = [];
-      saveAll();
+      // Wipe cloud database lists
+      db.ref('posts').set([]);
+      db.ref('tasks').set([]);
+      db.ref('pointsLogs').set([]);
+
       document.getElementById('resetConfirmationInput').value = '';
       closeModal('adminModal');
-      renderCalendar();
-      renderProgressTable();
-      renderTasksTable();
-      renderReservationTable();
-      renderPointsDashboard();
-      alert('Clean Slate Applied! All previous subcommittee member names, posts, and point totals have been wiped. The portal is now reset for the new academic year.');
+      alert('Clean Slate Applied! All previous subcommittee member names, posts, and point totals have been wiped from the cloud. The portal is now reset for the new academic year.');
     }
   </script>
 </body>
-</html>
