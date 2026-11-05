@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NTU Publicity Subcommittee Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- Navigation Bar -->
+  <header class="bg-slate-900 text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center py-3 sm:h-16 gap-3">
+      <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white shadow">
+            <i class="fa-solid fa-bullhorn text-sm"></i>
+          </div>
+          <div>
+            <h1 class="text-base font-bold leading-tight">Publicity Subcomm Portal</h1>
+            <p class="text-xs text-slate-400">NTU Calendar &bull; Tasks &bull; Reservations &bull; Points</p>
+          </div>
+        </div>
+
+        <!-- Exco Admin Lock Button (Mobile) -->
+        <button onclick="openAdminModal()" title="Exco Admin &amp; Succession Handover" class="sm:hidden px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700">
+          <i class="fa-solid fa-lock text-amber-400"></i>
+        </button>
+      </div>
+
+      <!-- Navigation Tabs & Settings -->
+      <div class="flex items-center space-x-1 sm:space-x-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+        <button onclick="switchTab('calendar')" id="tab-calendar" class="nav-btn px-3 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition bg-blue-600 text-white whitespace-nowrap">
+          <i class="fa-regular fa-calendar-days mr-1.5"></i>Calendar
+        </button>
+        <button onclick="switchTab('progress')" id="tab-progress" class="nav-btn px-3 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
+          <i class="fa-solid fa-bars-progress mr-1.5"></i>Progress &amp; Tasks
+        </button>
+        <button onclick="switchTab('reservation')" id="tab-reservation" class="nav-btn px-3 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
+          <i class="fa-solid fa-hand-holding-hand mr-1.5"></i>Reservations
+        </button>
+        <button onclick="switchTab('points')" id="tab-points" class="nav-btn px-3 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
+          <i class="fa-solid fa-coins mr-1.5"></i>Points Tracker
+        </button>
+        <!-- Exco Admin Lock Button (Desktop) -->
+        <button onclick="openAdminModal()" title="Exco Admin &amp; Succession Handover" class="hidden sm:inline-flex items-center justify-center px-3 py-2 rounded-md text-xs sm:text-sm font-semibold transition bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 border border-slate-700">
+          <i class="fa-solid fa-lock text-amber-400"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
+    <!-- ========================================== -->
+    <!-- 1. CALENDAR VIEW (MONTHLY GRID) -->
+    <!-- ========================================== -->
+    <section id="view-calendar" class="tab-view block space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex items-center space-x-3">
+          <button onclick="prevMonth()" class="p-2 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <h2 id="calendarMonthYear" class="text-base sm:text-lg font-bold text-slate-900 min-w-[180px] text-center"></h2>
+          <button onclick="nextMonth()" class="p-2 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+          <button onclick="goToToday()" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">
+            Today
+          </button>
+        </div>
+
+        <!-- Legend & Actions -->
+        <div class="flex items-center flex-wrap gap-2 text-xs">
+          <span class="inline-flex items-center px-2 py-1 rounded bg-amber-50 text-amber-800 border border-amber-200 font-medium">
+            <span class="w-2 h-2 rounded-full bg-amber-500 mr-1.5"></span>Holiday
+          </span>
+          <span class="inline-flex items-center px-2 py-1 rounded bg-purple-50 text-purple-800 border border-purple-200 font-medium">
+            <span class="w-2 h-2 rounded-full bg-purple-500 mr-1.5"></span>Recess
+          </span>
+          <span class="inline-flex items-center px-2 py-1 rounded bg-rose-50 text-rose-800 border border-rose-200 font-medium">
+            <span class="w-2 h-2 rounded-full bg-rose-500 mr-1.5"></span>Revision / Finals
+          </span>
+          <span class="inline-flex items-center px-2 py-1 rounded bg-orange-50 text-orange-800 border border-orange-300 font-medium">
+            <span class="w-2 h-2 rounded-full bg-orange-500 mr-1.5"></span>Internal Due
+          </span>
+          <span class="inline-flex items-center px-2 py-1 rounded bg-blue-50 text-blue-800 border border-blue-300 font-medium">
+            <span class="w-2 h-2 rounded-full bg-blue-500 mr-1.5"></span>Post Target
+          </span>
+          <button onclick="openAddPostModal()" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 shadow flex items-center space-x-1">
+            <i class="fa-solid fa-plus"></i><span>Post</span>
+          </button>
+          <button onclick="openAddTaskModal()" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 shadow flex items-center space-x-1">
+            <i class="fa-solid fa-plus"></i><span>Task</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Calendar Table -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="calendar-grid border-b border-slate-200 bg-slate-100/70 text-center text-xs font-semibold text-slate-600 py-2.5">
+          <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+        </div>
+        <div id="calendarGrid" class="calendar-grid divide-x divide-y divide-slate-100 bg-slate-200"></div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 2. PROGRESS CHECK & TASKS VIEW (SIDE BY SIDE) -->
+    <!-- ========================================== -->
+    <section id="view-progress" class="tab-view hidden">
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+        
+        <!-- Left Column: Publicity Posts Section -->
+        <div class="space-y-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-slate-100">
+            <div>
+              <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                <span>Publicity Posts</span>
+              </h2>
+              <p class="text-xs text-slate-500">Draft vetting, approvals, and target postings.</p>
+            </div>
+            <button onclick="openAddPostModal()" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 shadow flex items-center space-x-1">
+              <i class="fa-solid fa-plus"></i><span>New Post</span>
+            </button>
+          </div>
+
+          <div class="overflow-x-auto custom-scrollbar border border-slate-200 rounded-xl">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Topic</th>
+                  <th class="py-2.5 px-2">Plat.</th>
+                  <th class="py-2.5 px-2">Vetting Due</th>
+                  <th class="py-2.5 px-2">Target</th>
+                  <th class="py-2.5 px-2">PIC</th>
+                  <th class="py-2.5 px-2">Design</th>
+                  <th class="py-2.5 px-2">Caption</th>
+                  <th class="py-2.5 px-2">Review</th>
+                  <th class="py-2.5 px-2">Upload</th>
+                  <th class="py-2.5 px-2 text-center">Del</th>
+                </tr>
+              </thead>
+              <tbody id="progressTableBody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right Column: Miscellaneous Tasks Section -->
+        <div class="space-y-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-slate-100">
+            <div>
+              <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                <span>Miscellaneous Tasks</span>
+              </h2>
+              <p class="text-xs text-slate-500">Yearbook, ultrasnappedpics, and operations.</p>
+            </div>
+            <button onclick="openAddTaskModal()" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 shadow flex items-center space-x-1">
+              <i class="fa-solid fa-plus"></i><span>Add Task</span>
+            </button>
+          </div>
+
+          <div class="overflow-x-auto custom-scrollbar border border-slate-200 rounded-xl">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead class="bg-emerald-50 text-emerald-900 uppercase text-[10px] font-semibold border-b border-emerald-100">
+                <tr>
+                  <th class="py-2.5 px-3">Task Name</th>
+                  <th class="py-2.5 px-2">Category</th>
+                  <th class="py-2.5 px-2">Due Date</th>
+                  <th class="py-2.5 px-2">Assigned</th>
+                  <th class="py-2.5 px-2">Status</th>
+                  <th class="py-2.5 px-2">Notes</th>
+                  <th class="py-2.5 px-2 text-center">Del</th>
+                </tr>
+              </thead>
+              <tbody id="tasksTableBody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 3. RESERVATION TAB -->
+    <!-- ========================================== -->
+    <section id="view-reservation" class="tab-view hidden space-y-4">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Post Reservation &amp; Lead Allocation</h2>
+          <p class="text-xs text-slate-500">Subcommers can add their names to reserve slots; the Exco Lead assigns the final PIC.</p>
+        </div>
+        <button onclick="openAddPostModal()" class="px-3.5 py-2 bg-blue-600 text-white rounded-lg text-xs sm:text-sm font-semibold hover:bg-blue-700 shadow flex items-center space-x-1.5">
+          <i class="fa-solid fa-plus"></i><span>Propose New Topic</span>
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
+        <table class="w-full text-left text-xs sm:text-sm border-collapse">
+          <thead class="bg-slate-50 text-slate-600 uppercase text-[11px] font-semibold border-b border-slate-200">
+            <tr>
+              <th class="py-3 px-3">Topic / Post Title</th>
+              <th class="py-3 px-3">Platform</th>
+              <th class="py-3 px-3">Target Date</th>
+              <th class="py-3 px-3">Interested Members</th>
+              <th class="py-3 px-3">Add Your Name</th>
+              <th class="py-3 px-3">Lead Allocation (Final PIC)</th>
+              <th class="py-3 px-3 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody id="reservationTableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 4. POINTS TRACKER TAB -->
+    <!-- ========================================== -->
+    <section id="view-points" class="tab-view hidden space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+        <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-slate-500 font-medium">Event Coverage / InstaSeries</span>
+          <div class="text-xl font-bold text-blue-600 mt-1">0.25 pt</div>
+        </div>
+        <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-slate-500 font-medium">Event Post</span>
+          <div class="text-xl font-bold text-emerald-600 mt-1">0.75 pt</div>
+        </div>
+        <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-slate-500 font-medium">Yearbook Subcomm Member</span>
+          <div class="text-xl font-bold text-amber-600 mt-1">1.25 pt</div>
+        </div>
+        <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-slate-500 font-medium">Yearbook IC / Ultrasnapped / Socials</span>
+          <div class="text-xl font-bold text-purple-600 mt-1">1.50 pt</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Log Points Form -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+            <i class="fa-solid fa-pen-to-square text-blue-600"></i>
+            <span>Log Points for Completed Work</span>
+          </h3>
+          <form id="pointsLogForm" onsubmit="handleLogPoints(event)" class="space-y-3 text-xs">
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Subcommer Name *</label>
+              <input type="text" id="logMemberName" required placeholder="e.g. Rachel" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Contribution Category *</label>
+              <select id="logCategory" required onchange="updatePointPreview()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="0.25">Event Coverage / InstaSeries (0.25 pt)</option>
+                <option value="0.75">Event Post (0.75 pt)</option>
+                <option value="1.25">Yearbook Subcommittee Member (1.25 pt)</option>
+                <option value="1.50">Yearbook IC / Ultrasnapped Pics / Socials Managers (1.50 pt)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Post / Event *</label>
+              <input type="text" id="logDescription" required placeholder="e.g. Welcome Tea Recap carousel" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Date Completed</label>
+              <input type="date" id="logDate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+            <div class="p-3 bg-blue-50 rounded-lg border border-blue-100 flex justify-between items-center">
+              <span class="text-blue-900 font-medium">Points to be added:</span>
+              <span id="previewPoints" class="text-sm font-bold text-blue-700">+0.25 pt</span>
+            </div>
+            <button type="submit" class="w-full py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition shadow">
+              Log Points
+            </button>
+          </form>
+        </div>
+
+        <!-- Member Directory & Point Summaries -->
+        <div class="lg:col-span-2 space-y-6">
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+              <i class="fa-solid fa-users text-slate-700"></i>
+              <span>Member Contributions Directory</span>
+            </h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs sm:text-sm border-collapse">
+                <thead class="bg-slate-50 text-slate-600 uppercase text-[11px] font-semibold border-b border-slate-200">
+                  <tr>
+                    <th class="py-2.5 px-3">Subcomm Member</th>
+                    <th class="py-2.5 px-3">Tasks Logged</th>
+                    <th class="py-2.5 px-3 text-right">Total Points</th>
+                  </tr>
+                </thead>
+                <tbody id="memberPointsTableBody" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Activity Log -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+              <i class="fa-solid fa-clock-rotate-left text-slate-700"></i>
+              <span>Recent Activity History</span>
+            </h3>
+            <div class="overflow-x-auto max-h-60 overflow-y-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] font-semibold sticky top-0 border-b border-slate-200">
+                  <tr>
+                    <th class="py-2 px-3">Date</th>
+                    <th class="py-2 px-3">Member</th>
+                    <th class="py-2 px-3">Activity</th>
+                    <th class="py-2 px-3 text-right">Points</th>
+                    <th class="py-2 px-3 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="activityLogTableBody" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: ADD / SCHEDULE POST -->
+  <!-- ============================================================== -->
+  <div id="addPostModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+          <i class="fa-solid fa-bullhorn text-blue-600"></i><span>Schedule Publicity Post</span>
+        </h3>
+        <button onclick="closeModal('addPostModal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+      </div>
+      <form onsubmit="handleSavePost(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Post Title / Topic *</label>
+          <input type="text" id="postTopic" required placeholder="e.g. Welfare Pack Giveaway" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Platform *</label>
+          <select id="postPlatform" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="Instagram">Instagram</option>
+            <option value="Telegram">Telegram</option>
+            <option value="Instagram &amp; Telegram">Instagram &amp; Telegram</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-orange-700 mb-1">Internal Due (Vetting) *</label>
+            <input type="date" id="postInternalDate" required class="w-full border border-orange-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-orange-500 bg-orange-50/30" />
+          </div>
+          <div>
+            <label class="block font-medium text-blue-700 mb-1">Target Post Date *</label>
+            <input type="date" id="postTargetDate" required class="w-full border border-blue-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50/30" />
+          </div>
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Assigned PIC (Optional)</label>
+          <input type="text" id="postPic" placeholder="e.g. Sarah (or leave blank for reservation)" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeModal('addPostModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow">Save Post</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: ADD MISC TASK (YEARBOOK, ULTRASNAPPEDPICS, OTHER) -->
+  <!-- ============================================================== -->
+  <div id="addTaskModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+          <i class="fa-solid fa-list-check text-emerald-600"></i><span>New Miscellaneous Task</span>
+        </h3>
+        <button onclick="closeModal('addTaskModal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+      </div>
+      <form onsubmit="handleSaveTask(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Task Title *</label>
+          <input type="text" id="taskTitle" required placeholder="e.g. Yearbook subcommittee interview layout" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Category *</label>
+          <select id="taskCategory" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="ultrasnappedpics">ultrasnappedpics</option>
+            <option value="yearbook">yearbook</option>
+            <option value="other">other</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Due Date *</label>
+          <input type="date" id="taskDueDate" required class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Assigned Member(s)</label>
+          <input type="text" id="taskAssignee" placeholder="e.g. Jordan &amp; Alex" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Notes / Link (Optional)</label>
+          <textarea id="taskNotes" rows="2" placeholder="e.g. Google Drive draft folder link" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeModal('addTaskModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-semibold shadow">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: EXCO ADMIN & SUCCESSION HANDOVER (PIN-PROTECTED) -->
+  <!-- ============================================================== -->
+  <div id="adminModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+          <i class="fa-solid fa-shield-halved text-amber-500"></i>
+          <span>Exco Succession &amp; Calendar Admin</span>
+        </h3>
+        <button onclick="closeModal('adminModal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+      </div>
+
+      <!-- Auth State Section -->
+      <div id="adminAuthLock" class="space-y-3 py-2">
+        <p class="text-xs text-slate-600">Enter the Exco Master PIN to access succession handover controls and calendar date management.</p>
+        <div class="flex items-center space-x-2">
+          <input type="password" id="adminPinInput" maxlength="8" placeholder="Enter PIN" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-amber-500" />
+          <button onclick="verifyAdminPin()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg shadow">Unlock</button>
+        </div>
+        <p id="adminPinError" class="text-[11px] text-rose-600 hidden font-medium">Incorrect PIN. Try again.</p>
+      </div>
+
+      <!-- Unlocked Admin Controls -->
+      <div id="adminUnlockedContent" class="hidden space-y-5 text-xs">
+        <!-- Tab Sub-Navigation inside Admin -->
+        <div class="flex border-b border-slate-200">
+          <button onclick="switchAdminSubTab('dates')" id="btn-sub-dates" class="pb-2 font-bold text-blue-600 border-b-2 border-blue-600 px-3">
+            Academic Calendar Events
+          </button>
+          <button onclick="switchAdminSubTab('reset')" id="btn-sub-reset" class="pb-2 font-semibold text-slate-500 hover:text-slate-800 px-3">
+            Succession Clean Slate
+          </button>
+          <button onclick="switchAdminSubTab('pin')" id="btn-sub-pin" class="pb-2 font-semibold text-slate-500 hover:text-slate-800 px-3">
+            Security PIN
+          </button>
+        </div>
+
+        <!-- 1. Academic Dates Manager -->
+        <div id="subtab-dates" class="space-y-3">
+          <p class="text-slate-500 text-[11px]">Add or customize new NTU term dates, recess weeks, or public holidays for your term.</p>
+          <form onsubmit="handleAddAcademicEvent(event)" class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
+            <div class="grid grid-cols-2 gap-2">
+              <input type="text" id="newEventName" placeholder="Event Name (e.g. Recess Week)" required class="border border-slate-300 rounded px-2.5 py-1.5 text-xs outline-none" />
+              <select id="newEventType" class="border border-slate-300 rounded px-2.5 py-1.5 text-xs outline-none">
+                <option value="holiday">Public Holiday (Amber)</option>
+                <option value="recess">NTU Recess Week (Purple)</option>
+                <option value="revision">Revision / Reading Week (Blue)</option>
+                <option value="finals">Finals / Exam Week (Rose)</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <input type="date" id="newEventStart" required class="border border-slate-300 rounded px-2.5 py-1.5 text-xs outline-none" />
+              <input type="date" id="newEventEnd" required class="border border-slate-300 rounded px-2.5 py-1.5 text-xs outline-none" />
+            </div>
+            <button type="submit" class="w-full py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded text-xs shadow">
+              Add Calendar Event
+            </button>
+          </form>
+          <div class="max-h-40 overflow-y-auto border border-slate-200 rounded-lg divide-y divide-slate-100 bg-white">
+            <div id="academicEventsList" class="p-2 space-y-1"></div>
+          </div>
+        </div>
+
+        <!-- 2. Clean Slate Handover -->
+        <div id="subtab-reset" class="hidden space-y-3">
+          <div class="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-900 space-y-1">
+            <h4 class="font-bold flex items-center space-x-1.5">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <span>Succession Handover: Clean Slate</span>
+            </h4>
+            <p class="text-[11px] leading-relaxed">
+              When handing over to the incoming publicity head, this action removes all existing posts, tasks, reservations, and member points—resetting the portal back to an empty slate with 0 members.
+            </p>
+          </div>
+          <div class="space-y-2 pt-1">
+            <label class="block font-medium text-slate-700">Type <span class="font-bold text-rose-600">RESET</span> to confirm handover:</label>
+            <input type="text" id="resetConfirmationInput" placeholder="RESET" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-rose-500 uppercase" />
+            <button onclick="handleCleanSlateReset()" class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-xs shadow">
+              Wipe Data &amp; Reset to Clean Slate (0 Members)
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Change PIN -->
+        <div id="subtab-pin" class="hidden space-y-3">
+          <p class="text-slate-500 text-[11px]">Set a new master PIN for the next team so only authorized Exco leads can manage calendar dates or reset data.</p>
+          <div class="space-y-2">
+            <input type="password" id="newMasterPin" placeholder="Enter New PIN" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-amber-500" />
+            <button onclick="handleUpdatePin()" class="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg text-xs shadow">
+              Update Exco PIN
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- APPLICATION SCRIPT & LOCAL DATA STORE -->
+  <!-- ============================================================== -->
+  <script>
+    // State Store Keys
+    const STORAGE_KEY_POSTS = 'ntu_pubcomm_posts';
+    const STORAGE_KEY_TASKS = 'ntu_pubcomm_tasks';
+    const STORAGE_KEY_LOGS = 'ntu_pubcomm_logs';
+    const STORAGE_KEY_ACAD = 'ntu_pubcomm_acad_events';
+    const STORAGE_KEY_PIN = 'ntu_pubcomm_exco_pin';
+
+    // Default Academic Calendar Events
+    const DEFAULT_ACAD_EVENTS = [
+      { id: 'h1', title: 'National Day', type: 'holiday', start: '2026-08-09', end: '2026-08-09' },
+      { id: 'h2', title: 'Deepavali', type: 'holiday', start: '2026-11-08', end: '2026-11-08' },
+      { id: 'h3', title: 'Christmas Day', type: 'holiday', start: '2026-12-25', end: '2026-12-25' },
+      { id: 'h4', title: 'New Year Day', type: 'holiday', start: '2027-01-01', end: '2027-01-01' },
+      { id: 'h5', title: 'Chinese New Year', type: 'holiday', start: '2027-02-06', end: '2027-02-07' },
+      { id: 'h6', title: 'Good Friday', type: 'holiday', start: '2027-03-26', end: '2027-03-26' },
+      { id: 'h7', title: 'Hari Raya Puasa', type: 'holiday', start: '2027-03-10', end: '2027-03-10' },
+      { id: 'h8', title: 'Labour Day', type: 'holiday', start: '2027-05-01', end: '2027-05-01' },
+      { id: 'h9', title: 'Vesak Day', type: 'holiday', start: '2027-05-20', end: '2027-05-20' },
+      { id: 'ntu1', title: 'Sem 1 Recess Week', type: 'recess', start: '2026-09-28', end: '2026-10-02' },
+      { id: 'ntu2', title: 'Sem 1 Revision & Finals', type: 'finals', start: '2026-11-16', end: '2026-12-04' },
+      { id: 'ntu3', title: 'Sem 2 Recess Week', type: 'recess', start: '2027-02-22', end: '2027-02-26' },
+      { id: 'ntu4', title: 'Sem 2 Revision & Finals', type: 'finals', start: '2027-04-19', end: '2027-05-07' },
+      { id: 'h10', title: 'National Day', type: 'holiday', start: '2027-08-09', end: '2027-08-09' },
+      { id: 'ntu5', title: 'AY27/28 Sem 1 Recess Week', type: 'recess', start: '2027-09-27', end: '2027-10-01' },
+      { id: 'ntu6', title: 'AY27/28 Sem 1 Finals', type: 'finals', start: '2027-11-15', end: '2027-12-03' }
+    ];
+
+    // State Variables
+    let posts = JSON.parse(localStorage.getItem(STORAGE_KEY_POSTS)) || [];
+    let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY_TASKS)) || [];
+    let pointsLogs = JSON.parse(localStorage.getItem(STORAGE_KEY_LOGS)) || [];
+    let acadEvents = JSON.parse(localStorage.getItem(STORAGE_KEY_ACAD)) || DEFAULT_ACAD_EVENTS;
+    let excoPin = localStorage.getItem(STORAGE_KEY_PIN) || '1234';
+
+    // Calendar navigation state
+    let currentDate = new Date();
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCalendar();
+      renderProgressTable();
+      renderTasksTable();
+      renderReservationTable();
+      renderPointsDashboard();
+      updatePointPreview();
+
+      const todayIso = new Date().toISOString().split('T')[0];
+      const logDateInput = document.getElementById('logDate');
+      if (logDateInput) logDateInput.value = todayIso;
+    });
+
+    function saveAll() {
+      localStorage.setItem(STORAGE_KEY_POSTS, JSON.stringify(posts));
+      localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(tasks));
+      localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(pointsLogs));
+      localStorage.setItem(STORAGE_KEY_ACAD, JSON.stringify(acadEvents));
+      localStorage.setItem(STORAGE_KEY_PIN, excoPin);
+    }
+
+    // Tab Navigation
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white');
+        btn.classList.add('text-slate-300');
+      });
+
+      const activeView = document.getElementById(`view-${tabId}`);
+      const activeBtn = document.getElementById(`tab-${tabId}`);
+      if (activeView) activeView.classList.remove('hidden');
+      if (activeBtn) {
+        activeBtn.classList.add('bg-blue-600', 'text-white');
+        activeBtn.classList.remove('text-slate-300');
+      }
+
+      if (tabId === 'calendar') renderCalendar();
+      if (tabId === 'progress') { renderProgressTable(); renderTasksTable(); }
+      if (tabId === 'reservation') renderReservationTable();
+      if (tabId === 'points') renderPointsDashboard();
+    }
+
+    // Modal helpers
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    function openAddPostModal(date = '') {
+      if (date) {
+        document.getElementById('postTargetDate').value = date;
+        document.getElementById('postInternalDate').value = date;
+      }
+      openModal('addPostModal');
+    }
+
+    function openAddTaskModal() { openModal('addTaskModal'); }
+
+    // ==========================================
+    // CALENDAR GRID GENERATION
+    // ==========================================
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      document.getElementById('calendarMonthYear').innerText = `${monthNames[month]} ${year}`;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInPrevMonth = new Date(year, month, 0).getDate();
+      const grid = document.getElementById('calendarGrid');
+      grid.innerHTML = '';
+
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      // Previous month padding
+      for (let i = firstDay - 1; i >= 0; i--) {
+        const d = daysInPrevMonth - i;
+        const cell = document.createElement('div');
+        cell.className = 'bg-slate-50/50 p-1.5 min-h-[95px] text-slate-300 text-xs flex flex-col select-none';
+        cell.innerHTML = `<span>${d}</span>`;
+        grid.appendChild(cell);
+      }
+
+      // Current Month Days
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isToday = dateStr === todayStr;
+
+        const cell = document.createElement('div');
+        cell.className = `bg-white p-1.5 min-h-[95px] text-xs flex flex-col group relative transition-colors hover:bg-slate-50 ${isToday ? 'ring-2 ring-blue-500 z-10' : ''}`;
+
+        let dayHeader = `
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-bold ${isToday ? 'w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px]' : 'text-slate-700'}">${day}</span>
+            <button onclick="openAddPostModal('${dateStr}')" class="opacity-0 group-hover:opacity-100 text-[10px] text-blue-600 hover:text-blue-800 transition">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+        `;
+
+        let badgesHtml = '<div class="space-y-1 overflow-y-auto max-h-[75px]">';
+
+        // Academic / Holiday Badges
+        acadEvents.forEach(evt => {
+          if (dateStr >= evt.start && dateStr <= evt.end) {
+            let color = 'bg-purple-100 text-purple-800 border-purple-200';
+            if (evt.type === 'holiday') color = 'bg-amber-100 text-amber-800 border-amber-200';
+            if (evt.type === 'revision' || evt.type === 'finals') color = 'bg-rose-100 text-rose-800 border-rose-200';
+            badgesHtml += `<div class="px-1.5 py-0.5 rounded text-[10px] font-semibold border truncate ${color}" title="${evt.title}">${evt.title}</div>`;
+          }
+        });
+
+        // Internal Submission Due Date Badges
+        posts.forEach(p => {
+          if (p.internalDate === dateStr) {
+            badgesHtml += `<div class="px-1.5 py-0.5 rounded text-[10px] bg-orange-100 text-orange-900 border border-orange-300 font-medium truncate" title="Draft Due: ${p.topic}">
+              <i class="fa-solid fa-file-pen mr-1 text-orange-600"></i>${p.topic}
+            </div>`;
+          }
+          if (p.targetDate === dateStr) {
+            badgesHtml += `<div class="px-1.5 py-0.5 rounded text-[10px] bg-blue-100 text-blue-900 border border-blue-300 font-semibold truncate" title="Post: ${p.topic} (${p.platform})">
+              <i class="fa-solid fa-upload mr-1 text-blue-600"></i>${p.topic}
+            </div>`;
+          }
+        });
+
+        // Misc Task Due Dates
+        tasks.forEach(t => {
+          if (t.dueDate === dateStr) {
+            badgesHtml += `<div class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-900 border border-emerald-300 font-medium truncate" title="Task Due: ${t.title}">
+              <i class="fa-solid fa-check mr-1 text-emerald-600"></i>${t.title}
+            </div>`;
+          }
+        });
+
+        badgesHtml += '</div>';
+        cell.innerHTML = dayHeader + badgesHtml;
+        grid.appendChild(cell);
+      }
+
+      // Next month padding
+      const totalCells = firstDay + daysInMonth;
+      const nextMonthPadding = (7 - (totalCells % 7)) % 7;
+      for (let day = 1; day <= nextMonthPadding; day++) {
+        const cell = document.createElement('div');
+        cell.className = 'bg-slate-50/50 p-1.5 min-h-[95px] text-slate-300 text-xs flex flex-col select-none';
+        cell.innerHTML = `<span>${day}</span>`;
+        grid.appendChild(cell);
+      }
+    }
+
+    function prevMonth() { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); }
+    function nextMonth() { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); }
+    function goToToday() { currentDate = new Date(); renderCalendar(); }
+
+    // ==========================================
+    // PROGRESS & TASK OPERATIONS
+    // ==========================================
+    function handleSavePost(e) {
+      e.preventDefault();
+      const topic = document.getElementById('postTopic').value.trim();
+      const platform = document.getElementById('postPlatform').value;
+      const internalDate = document.getElementById('postInternalDate').value;
+      const targetDate = document.getElementById('postTargetDate').value;
+      const pic = document.getElementById('postPic').value.trim();
+
+      const newPost = {
+        id: 'post_' + Date.now(),
+        topic,
+        platform,
+        internalDate,
+        targetDate,
+        pic: pic || 'Unassigned',
+        designStatus: 'Not Started',
+        captionStatus: 'Not Started',
+        reviewPhase: 'Pending Draft',
+        uploadStatus: 'Not Scheduled',
+        interested: []
+      };
+
+      posts.push(newPost);
+      saveAll();
+      closeModal('addPostModal');
+      document.getElementById('postTopic').value = '';
+      document.getElementById('postPic').value = '';
+      renderCalendar();
+      renderProgressTable();
+      renderReservationTable();
+    }
+
+    function handleSaveTask(e) {
+      e.preventDefault();
+      const title = document.getElementById('taskTitle').value.trim();
+      const category = document.getElementById('taskCategory').value;
+      const dueDate = document.getElementById('taskDueDate').value;
+      const assignee = document.getElementById('taskAssignee').value.trim();
+      const notes = document.getElementById('taskNotes').value.trim();
+
+      const newTask = {
+        id: 'task_' + Date.now(),
+        title,
+        category,
+        dueDate,
+        assignee: assignee || 'Unassigned',
+        status: 'In Progress',
+        notes
+      };
+
+      tasks.push(newTask);
+      saveAll();
+      closeModal('addTaskModal');
+      document.getElementById('taskTitle').value = '';
+      document.getElementById('taskAssignee').value = '';
+      document.getElementById('taskNotes').value = '';
+      renderCalendar();
+      renderTasksTable();
+    }
+
+    function renderProgressTable() {
+      const tbody = document.getElementById('progressTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (posts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-6 text-slate-400 italic">No posts scheduled yet.</td></tr>`;
+        return;
+      }
+
+      posts.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/70 transition';
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 font-semibold text-slate-900">${p.topic}</td>
+          <td class="py-2.5 px-2 text-slate-600">${p.platform}</td>
+          <td class="py-2.5 px-2 text-orange-700 font-medium">${p.internalDate || '-'}</td>
+          <td class="py-2.5 px-2 text-blue-700 font-medium">${p.targetDate || '-'}</td>
+          <td class="py-2.5 px-2 font-medium text-slate-800">${p.pic}</td>
+          <td class="py-2.5 px-2">
+            <select onchange="updatePostField('${p.id}', 'designStatus', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-xs">
+              <option ${p.designStatus === 'Not Started' ? 'selected' : ''}>Not Started</option>
+              <option ${p.designStatus === 'In Progress' ? 'selected' : ''}>In Progress</option>
+              <option ${p.designStatus === 'Completed' ? 'selected' : ''}>Completed</option>
+            </select>
+          </td>
+          <td class="py-2.5 px-2">
+            <select onchange="updatePostField('${p.id}', 'captionStatus', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-xs">
+              <option ${p.captionStatus === 'Not Started' ? 'selected' : ''}>Not Started</option>
+              <option ${p.captionStatus === 'Drafting' ? 'selected' : ''}>Drafting</option>
+              <option ${p.captionStatus === 'Reviewing' ? 'selected' : ''}>Reviewing</option>
+              <option ${p.captionStatus === 'Completed' ? 'selected' : ''}>Completed</option>
+            </select>
+          </td>
+          <td class="py-2.5 px-2">
+            <select onchange="updatePostField('${p.id}', 'reviewPhase', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-xs font-semibold ${p.reviewPhase === 'Approved' ? 'text-emerald-600' : 'text-amber-600'}">
+              <option ${p.reviewPhase === 'Pending Draft' ? 'selected' : ''}>Pending Draft</option>
+              <option ${p.reviewPhase === 'Vetting' ? 'selected' : ''}>Vetting</option>
+              <option ${p.reviewPhase === 'Pending Edits' ? 'selected' : ''}>Pending Edits</option>
+              <option ${p.reviewPhase === 'Approved' ? 'selected' : ''}>Approved</option>
+            </select>
+          </td>
+          <td class="py-2.5 px-2">
+            <select onchange="updatePostField('${p.id}', 'uploadStatus', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-xs">
+              <option ${p.uploadStatus === 'Not Scheduled' ? 'selected' : ''}>Not Scheduled</option>
+              <option ${p.uploadStatus === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
+              <option ${p.uploadStatus === 'Published' ? 'selected' : ''}>Published</option>
+            </select>
+          </td>
+          <td class="py-2.5 px-2 text-center">
+            <button onclick="deletePost('${p.id}')" class="text-rose-500 hover:text-rose-700" title="Delete Post"><i class="fa-regular fa-trash-can"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updatePostField(id, field, value) {
+      const p = posts.find(item => item.id === id);
+      if (p) {
+        p[field] = value;
+        saveAll();
+        renderCalendar();
+      }
+    }
+
+    function deletePost(id) {
+      if (!confirm('Are you sure you want to remove this post?')) return;
+      posts = posts.filter(item => item.id !== id);
+      saveAll();
+      renderCalendar();
+      renderProgressTable();
+      renderReservationTable();
+    }
+
+    function renderTasksTable() {
+      const tbody = document.getElementById('tasksTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (tasks.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400 italic">No miscellaneous tasks logged yet.</td></tr>`;
+        return;
+      }
+
+      tasks.forEach(t => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/70 transition';
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 font-semibold text-slate-900">${t.title}</td>
+          <td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-medium">${t.category}</span></td>
+          <td class="py-2.5 px-2 text-emerald-800 font-semibold">${t.dueDate}</td>
+          <td class="py-2.5 px-2 font-medium text-slate-800">${t.assignee}</td>
+          <td class="py-2.5 px-2">
+            <select onchange="updateTaskStatus('${t.id}', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-xs font-semibold ${t.status === 'Completed' ? 'text-emerald-600' : 'text-slate-700'}">
+              <option ${t.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+              <option ${t.status === 'Review' ? 'selected' : ''}>Review</option>
+              <option ${t.status === 'Completed' ? 'selected' : ''}>Completed</option>
+            </select>
+          </td>
+          <td class="py-2.5 px-2 text-slate-500 text-xs truncate max-w-[120px]">${t.notes || '-'}</td>
+          <td class="py-2.5 px-2 text-center">
+            <button onclick="deleteTask('${t.id}')" class="text-rose-500 hover:text-rose-700"><i class="fa-regular fa-trash-can"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateTaskStatus(id, status) {
+      const t = tasks.find(item => item.id === id);
+      if (t) {
+        t.status = status;
+        saveAll();
+      }
+    }
+
+    function deleteTask(id) {
+      if (!confirm('Remove this task?')) return;
+      tasks = tasks.filter(item => item.id !== id);
+      saveAll();
+      renderCalendar();
+      renderTasksTable();
+    }
+
+    // ==========================================
+    // RESERVATIONS & ALLOCATIONS
+    // ==========================================
+    function renderReservationTable() {
+      const tbody = document.getElementById('reservationTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (posts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400 italic">No posts available for reservation yet. Add posts in Calendar or Progress tab!</td></tr>`;
+        return;
+      }
+
+      posts.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/70 transition';
+        const interestedList = (p.interested && p.interested.length > 0)
+          ? p.interested.map(name => `<span class="inline-block px-2 py-0.5 bg-slate-100 rounded text-slate-700 font-medium mr-1 mb-1">${name}</span>`).join('')
+          : '<span class="text-slate-400 italic">None yet</span>';
+
+        tr.innerHTML = `
+          <td class="py-3 px-3 font-semibold text-slate-900">${p.topic}</td>
+          <td class="py-3 px-3 text-slate-600">${p.platform}</td>
+          <td class="py-3 px-3 text-blue-700 font-medium">${p.targetDate}</td>
+          <td class="py-3 px-3">${interestedList}</td>
+          <td class="py-3 px-3">
+            <div class="flex items-center space-x-1">
+              <input type="text" id="reserve_input_${p.id}" placeholder="Your name" class="border border-slate-300 rounded px-2 py-1 text-xs w-28 outline-none focus:ring-1 focus:ring-blue-500" />
+              <button onclick="addInterest('${p.id}')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-900 text-white rounded text-xs font-semibold">Add</button>
+            </div>
+          </td>
+          <td class="py-3 px-3">
+            <div class="flex items-center space-x-1">
+              <input type="text" value="${p.pic === 'Unassigned' ? '' : p.pic}" placeholder="Official PIC" onchange="allocatePic('${p.id}', this.value)" class="border border-blue-200 bg-blue-50/40 rounded px-2.5 py-1 text-xs font-semibold text-blue-900 w-32 outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+          </td>
+          <td class="py-3 px-3 text-center">
+            <button onclick="clearReservations('${p.id}')" class="text-xs text-slate-400 hover:text-slate-600" title="Clear Interest Names">Clear List</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function addInterest(postId) {
+      const input = document.getElementById(`reserve_input_${postId}`);
+      const name = input.value.trim();
+      if (!name) return;
+      const p = posts.find(item => item.id === postId);
+      if (p) {
+        if (!p.interested) p.interested = [];
+        if (!p.interested.includes(name)) {
+          p.interested.push(name);
+          saveAll();
+          renderReservationTable();
+        }
+      }
+      input.value = '';
+    }
+
+    function allocatePic(postId, newPic) {
+      const p = posts.find(item => item.id === postId);
+      if (p) {
+        p.pic = newPic.trim() || 'Unassigned';
+        saveAll();
+        renderProgressTable();
+      }
+    }
+
+    function clearReservations(postId) {
+      const p = posts.find(item => item.id === postId);
+      if (p) {
+        p.interested = [];
+        saveAll();
+        renderReservationTable();
+      }
+    }
+
+    // ==========================================
+    // POINTS TRACKER LOGIC
+    // ==========================================
+    function updatePointPreview() {
+      const catVal = document.getElementById('logCategory').value;
+      document.getElementById('previewPoints').innerText = `+${parseFloat(catVal).toFixed(2)} pt`;
+    }
+
+    function handleLogPoints(e) {
+      e.preventDefault();
+      const member = document.getElementById('logMemberName').value.trim();
+      const points = parseFloat(document.getElementById('logCategory').value);
+      const categoryDesc = document.getElementById('logCategory').selectedOptions[0].text.split('(')[0].trim();
+      const desc = document.getElementById('logDescription').value.trim();
+      const date = document.getElementById('logDate').value || new Date().toISOString().split('T')[0];
+
+      const newLog = {
+        id: 'log_' + Date.now(),
+        member,
+        points,
+        categoryDesc,
+        desc,
+        date
+      };
+
+      pointsLogs.unshift(newLog);
+      saveAll();
+      document.getElementById('logMemberName').value = '';
+      document.getElementById('logDescription').value = '';
+      renderPointsDashboard();
+    }
+
+    function renderPointsDashboard() {
+      // 1. Group points per member
+      const memberTotals = {};
+      const memberCount = {};
+      pointsLogs.forEach(entry => {
+        const mem = entry.member;
+        memberTotals[mem] = (memberTotals[mem] || 0) + entry.points;
+        memberCount[mem] = (memberCount[mem] || 0) + 1;
+      });
+
+      const memberTbody = document.getElementById('memberPointsTableBody');
+      if (memberTbody) {
+        memberTbody.innerHTML = '';
+        const memberList = Object.keys(memberTotals);
+        if (memberList.length === 0) {
+          memberTbody.innerHTML = `<tr><td colspan="3" class="text-center py-6 text-slate-400 italic">No points recorded yet. Fill out the form on the left to log points!</td></tr>`;
+        } else {
+          memberList.sort().forEach(m => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td class="py-2.5 px-3 font-bold text-slate-900">${m}</td>
+              <td class="py-2.5 px-3 text-slate-600">${memberCount[m]} contributions</td>
+              <td class="py-2.5 px-3 text-right font-bold text-blue-600 text-sm">${memberTotals[m].toFixed(2)} pts</td>
+            `;
+            memberTbody.appendChild(tr);
+          });
+        }
+      }
+
+      // 2. Render activity history table
+      const activityTbody = document.getElementById('activityLogTableBody');
+      if (activityTbody) {
+        activityTbody.innerHTML = '';
+        if (pointsLogs.length === 0) {
+          activityTbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-slate-400 italic">No activity yet.</td></tr>`;
+        } else {
+          pointsLogs.forEach(log => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td class="py-2 px-3 text-slate-500">${log.date}</td>
+              <td class="py-2 px-3 font-semibold text-slate-900">${log.member}</td>
+              <td class="py-2 px-3 text-slate-700">${log.desc} <span class="text-[10px] text-slate-400">(${log.categoryDesc})</span></td>
+              <td class="py-2 px-3 text-right font-bold text-blue-600">+${log.points.toFixed(2)}</td>
+              <td class="py-2 px-3 text-center">
+                <button onclick="deletePointLog('${log.id}')" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-trash text-[11px]"></i></button>
+              </td>
+            `;
+            activityTbody.appendChild(tr);
+          });
+        }
+      }
+    }
+
+    function deletePointLog(id) {
+      if (!confirm('Remove this point entry?')) return;
+      pointsLogs = pointsLogs.filter(l => l.id !== id);
+      saveAll();
+      renderPointsDashboard();
+    }
+
+    // ==========================================
+    // EXCO ADMIN & SUCCESSION CONTROLS
+    // ==========================================
+    function openAdminModal() {
+      document.getElementById('adminAuthLock').classList.remove('hidden');
+      document.getElementById('adminUnlockedContent').classList.add('hidden');
+      document.getElementById('adminPinInput').value = '';
+      document.getElementById('adminPinError').classList.add('hidden');
+      openModal('adminModal');
+    }
+
+    function verifyAdminPin() {
+      const entered = document.getElementById('adminPinInput').value;
+      if (entered === excoPin) {
+        document.getElementById('adminAuthLock').classList.add('hidden');
+        document.getElementById('adminUnlockedContent').classList.remove('hidden');
+        renderAcademicEventsList();
+      } else {
+        document.getElementById('adminPinError').classList.remove('hidden');
+      }
+    }
+
+    function switchAdminSubTab(subTab) {
+      ['dates', 'reset', 'pin'].forEach(tab => {
+        document.getElementById(`subtab-${tab}`).classList.add('hidden');
+        document.getElementById(`btn-sub-${tab}`).className = 'pb-2 font-semibold text-slate-500 hover:text-slate-800 px-3';
+      });
+      document.getElementById(`subtab-${subTab}`).classList.remove('hidden');
+      document.getElementById(`btn-sub-${subTab}`).className = 'pb-2 font-bold text-blue-600 border-b-2 border-blue-600 px-3';
+    }
+
+    function renderAcademicEventsList() {
+      const container = document.getElementById('academicEventsList');
+      if (!container) return;
+      container.innerHTML = '';
+      if (acadEvents.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 italic">No events configured.</p>`;
+        return;
+      }
+      acadEvents.forEach(evt => {
+        const item = document.createElement('div');
+        item.className = 'flex justify-between items-center text-xs p-1.5 hover:bg-slate-50 rounded';
+        item.innerHTML = `
+          <div>
+            <span class="font-semibold text-slate-800">${evt.title}</span>
+            <span class="text-[10px] text-slate-500 ml-1">(${evt.start} to ${evt.end})</span>
+          </div>
+          <button onclick="deleteAcademicEvent('${evt.id}')" class="text-rose-500 hover:text-rose-700 text-xs px-1">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function handleAddAcademicEvent(e) {
+      e.preventDefault();
+      const title = document.getElementById('newEventName').value.trim();
+      const type = document.getElementById('newEventType').value;
+      const start = document.getElementById('newEventStart').value;
+      const end = document.getElementById('newEventEnd').value;
+
+      if (!title || !start || !end) return;
+
+      acadEvents.push({
+        id: 'evt_' + Date.now(),
+        title,
+        type,
+        start,
+        end
+      });
+
+      saveAll();
+      renderAcademicEventsList();
+      renderCalendar();
+      document.getElementById('newEventName').value = '';
+    }
+
+    function deleteAcademicEvent(id) {
+      acadEvents = acadEvents.filter(e => e.id !== id);
+      saveAll();
+      renderAcademicEventsList();
+      renderCalendar();
+    }
+
+    function handleUpdatePin() {
+      const newPin = document.getElementById('newMasterPin').value.trim();
+      if (newPin.length < 4) {
+        alert('PIN should be at least 4 digits or characters.');
+        return;
+      }
+      excoPin = newPin;
+      saveAll();
+      document.getElementById('newMasterPin').value = '';
+      alert('Exco Master PIN has been updated successfully.');
+    }
+
+    // Handover Clean Slate Reset
+    function handleCleanSlateReset() {
+      const confirmText = document.getElementById('resetConfirmationInput').value.trim();
+      if (confirmText !== 'RESET') {
+        alert('Please type RESET in capital letters to confirm the handover wipe.');
+        return;
+      }
+
+      // Reset all user lists to empty slate
+      posts = [];
+      tasks = [];
+      pointsLogs = [];
+      saveAll();
+      document.getElementById('resetConfirmationInput').value = '';
+      closeModal('adminModal');
+      renderCalendar();
+      renderProgressTable();
+      renderTasksTable();
+      renderReservationTable();
+      renderPointsDashboard();
+      alert('Clean Slate Applied! All previous subcommittee member names, posts, and point totals have been wiped. The portal is now reset for the new academic year.');
+    }
+  </script>
+</body>
+</html>
