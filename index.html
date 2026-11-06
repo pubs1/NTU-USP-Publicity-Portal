@@ -4,12 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NTU Publicity Subcommittee Portal</title>
+
+  <!-- Tailwind CSS & FontAwesome Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <!-- Firebase Compatibility SDKs -->
+
+  <!-- Firebase App, Realtime Database & App Check Compatibility SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check-compat.js"></script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -32,19 +36,19 @@
           <div>
             <div class="flex items-center space-x-2">
               <h1 class="text-base font-bold leading-tight">Publicity Subcomm Portal</h1>
-              <!-- Real-time Status Badge -->
-              <span id="syncBadge" class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-rose-500/20 text-rose-300">
-                <span class="w-1.5 h-1.5 mr-1 rounded-full bg-rose-500 animate-pulse"></span>Offline
+              <span id="cloudStatusBadge" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-950 text-emerald-400 border border-emerald-700">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1"></span>Cloud Live
               </span>
             </div>
             <p class="text-xs text-slate-400">NTU Calendar &bull; Tasks &bull; Reservations &bull; Points</p>
           </div>
         </div>
-        <!-- Exco Admin Button Mobile -->
-        <button onclick="openAdminModal()" class="sm:hidden p-2 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700">
+        <!-- Exco Admin Button (Mobile) -->
+        <button onclick="openAdminModal()" class="sm:hidden p-2 rounded-lg text-slate-300 hover:text-white bg-slate-800 border border-slate-700" title="Exco Settings">
           <i class="fa-solid fa-lock text-amber-400"></i>
         </button>
       </div>
+
       <!-- Navigation Tabs & Settings -->
       <div class="flex items-center space-x-1 sm:space-x-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
         <button onclick="switchTab('calendar')" id="tab-calendar" class="nav-btn px-3 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition bg-blue-600 text-white whitespace-nowrap">
@@ -59,7 +63,8 @@
         <button onclick="switchTab('points')" id="tab-points" class="nav-btn px-3 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
           <i class="fa-solid fa-coins mr-1.5"></i>Points Tracker
         </button>
-        <button onclick="openAdminModal()" title="Exco Settings &amp; Succession Handover" class="hidden sm:inline-flex items-center p-2.5 rounded-md transition bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 border border-slate-700 whitespace-nowrap">
+        <!-- Exco Admin Lock Button (Desktop) -->
+        <button onclick="openAdminModal()" title="Exco Settings &amp; Succession Handover" class="hidden sm:inline-flex items-center p-2 rounded-md transition bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 border border-slate-700">
           <i class="fa-solid fa-lock text-amber-400"></i>
         </button>
       </div>
@@ -68,6 +73,7 @@
 
   <!-- Main Container -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
     <!-- ========================================== -->
     <!-- 1. CALENDAR VIEW (MONTHLY GRID) -->
     <!-- ========================================== -->
@@ -85,6 +91,7 @@
             Today
           </button>
         </div>
+
         <!-- Legend & Actions -->
         <div class="flex items-center flex-wrap gap-2 text-xs">
           <span class="inline-flex items-center px-2 py-1 rounded bg-amber-50 text-amber-800 border border-amber-200 font-medium">
@@ -110,6 +117,7 @@
           </button>
         </div>
       </div>
+
       <!-- Calendar Table -->
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="calendar-grid border-b border-slate-200 bg-slate-100/70 text-center text-xs font-semibold text-slate-600 py-2.5">
@@ -120,39 +128,39 @@
     </section>
 
     <!-- ========================================== -->
-    <!-- 2. SIDE-BY-SIDE PROGRESS & TASKS VIEW -->
+    <!-- 2. PROGRESS CHECK & TASKS VIEW (SIDE-BY-SIDE) -->
     <!-- ========================================== -->
     <section id="view-progress" class="tab-view hidden">
-      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
-        
-        <!-- Left Side: Publicity Posts Column -->
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+        <!-- Column 1: Social Media Posts -->
         <div class="space-y-4">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div>
-              <div class="flex items-center space-x-2">
-                <h2 class="text-lg font-bold text-slate-900">Publicity Posts Progress</h2>
-                <span id="postCountBadge" class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5 rounded-full">0 Active</span>
-              </div>
-              <p class="text-xs text-slate-500">Track vetting deadlines, review loops, and posting targets.</p>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900 flex items-center space-x-2">
+                <i class="fa-brands fa-instagram text-pink-600"></i>
+                <span>Publicity Posts Progress</span>
+              </h2>
+              <p class="text-xs text-slate-500">Draft vetting, design approvals, and posting schedule.</p>
             </div>
-            <button onclick="openAddPostModal()" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 shadow flex items-center space-x-1">
+            <button onclick="openAddPostModal()" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 shadow flex items-center space-x-1 whitespace-nowrap">
               <i class="fa-solid fa-plus"></i><span>New Post</span>
             </button>
           </div>
-          
+
           <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto max-h-[600px] overflow-y-auto">
             <table class="w-full text-left text-xs border-collapse">
-              <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] font-semibold border-b border-slate-200 sticky top-0 z-10">
+              <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] font-semibold sticky top-0 border-b border-slate-200 z-10">
                 <tr>
-                  <th class="py-2.5 px-2 bg-slate-50">Topic / Campaign</th>
-                  <th class="py-2.5 px-2 bg-slate-50">Platform</th>
-                  <th class="py-2.5 px-2 bg-slate-50">Dates</th>
-                  <th class="py-2.5 px-2 bg-slate-50">PIC</th>
-                  <th class="py-2.5 px-2 bg-slate-50">Design</th>
-                  <th class="py-2.5 px-2 bg-slate-50">Caption</th>
-                  <th class="py-2.5 px-2 bg-slate-50">Review</th>
-                  <th class="py-2.5 px-2 bg-slate-50">Upload</th>
-                  <th class="py-2.5 px-2 bg-slate-50 text-center">Edit</th>
+                  <th class="py-2.5 px-3">Topic / Post</th>
+                  <th class="py-2.5 px-2">Channel</th>
+                  <th class="py-2.5 px-2">Vetting Due</th>
+                  <th class="py-2.5 px-2">Target Date</th>
+                  <th class="py-2.5 px-2">PIC</th>
+                  <th class="py-2.5 px-2">Design</th>
+                  <th class="py-2.5 px-2">Review</th>
+                  <th class="py-2.5 px-2">Status</th>
+                  <th class="py-2.5 px-2 text-center">Action</th>
                 </tr>
               </thead>
               <tbody id="progressTableBody" class="divide-y divide-slate-100"></tbody>
@@ -160,32 +168,32 @@
           </div>
         </div>
 
-        <!-- Right Side: Miscellaneous Tasks Column -->
+        <!-- Column 2: Miscellaneous Tasks -->
         <div class="space-y-4">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div>
-              <div class="flex items-center space-x-2">
-                <h2 class="text-lg font-bold text-slate-900">Miscellaneous Operations</h2>
-                <span id="taskCountBadge" class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2 py-0.5 rounded-full">0 Active</span>
-              </div>
-              <p class="text-xs text-slate-500">Track ultrasnappedpics, yearbook prep, and non-posting tasks.</p>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900 flex items-center space-x-2">
+                <i class="fa-solid fa-list-check text-emerald-600"></i>
+                <span>Miscellaneous Tasks</span>
+              </h2>
+              <p class="text-xs text-slate-500">Ultrasnappedpics, Yearbook, and other subcommittee tasks.</p>
             </div>
-            <button onclick="openAddTaskModal()" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 shadow flex items-center space-x-1">
+            <button onclick="openAddTaskModal()" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 shadow flex items-center space-x-1 whitespace-nowrap">
               <i class="fa-solid fa-plus"></i><span>New Task</span>
             </button>
           </div>
 
           <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto max-h-[600px] overflow-y-auto">
             <table class="w-full text-left text-xs border-collapse">
-              <thead class="bg-emerald-50 text-emerald-900 uppercase text-[10px] font-semibold border-b border-emerald-100 sticky top-0 z-10">
+              <thead class="bg-emerald-50 text-emerald-900 uppercase text-[10px] font-semibold sticky top-0 border-b border-emerald-100 z-10">
                 <tr>
-                  <th class="py-2.5 px-2 bg-emerald-50">Task Name</th>
-                  <th class="py-2.5 px-2 bg-emerald-50">Category</th>
-                  <th class="py-2.5 px-2 bg-emerald-50">Due Date</th>
-                  <th class="py-2.5 px-2 bg-emerald-50">Assignee</th>
-                  <th class="py-2.5 px-2 bg-emerald-50">Status</th>
-                  <th class="py-2.5 px-2 bg-emerald-50">Notes</th>
-                  <th class="py-2.5 px-2 bg-emerald-50 text-center">Edit</th>
+                  <th class="py-2.5 px-3">Task Name</th>
+                  <th class="py-2.5 px-2">Category</th>
+                  <th class="py-2.5 px-2">Due Date</th>
+                  <th class="py-2.5 px-2">Assigned Member(s)</th>
+                  <th class="py-2.5 px-2">Status</th>
+                  <th class="py-2.5 px-2">Notes</th>
+                  <th class="py-2.5 px-2 text-center">Action</th>
                 </tr>
               </thead>
               <tbody id="tasksTableBody" class="divide-y divide-slate-100"></tbody>
@@ -209,6 +217,7 @@
           <i class="fa-solid fa-plus"></i><span>Propose New Topic</span>
         </button>
       </div>
+
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
         <table class="w-full text-left text-xs sm:text-sm border-collapse">
           <thead class="bg-slate-50 text-slate-600 uppercase text-[11px] font-semibold border-b border-slate-200">
@@ -241,14 +250,15 @@
           <div class="text-xl font-bold text-emerald-600 mt-1">0.75 pt</div>
         </div>
         <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
-          <span class="text-slate-500 font-medium">Yearbook Subcommittee Member</span>
+          <span class="text-slate-500 font-medium">Yearbook Subcomm Member</span>
           <div class="text-xl font-bold text-amber-600 mt-1">1.25 pt</div>
         </div>
         <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
-          <span class="text-slate-500 font-medium">Yearbook IC / Ultrasnappedpics / Socials Managers</span>
+          <span class="text-slate-500 font-medium">Yearbook IC / Ultrasnappedpics / Socials</span>
           <div class="text-xl font-bold text-purple-600 mt-1">1.50 pt</div>
         </div>
       </div>
+
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Log Points Form -->
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
@@ -258,22 +268,41 @@
           </h3>
           <form id="pointsLogForm" onsubmit="handleLogPoints(event)" class="space-y-3 text-xs">
             <div>
-              <label class="block font-medium text-slate-700 mb-1">Subcommer Name \*</label>
+              <label class="block font-medium text-slate-700 mb-1">Subcommer Name *</label>
               <input type="text" id="logMemberName" required placeholder="e.g. Rachel" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
             <div>
-              <label class="block font-medium text-slate-700 mb-1">Contribution Category \*</label>
-              <select id="logCategory" required onchange="updatePointPreview()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+              <label class="block font-medium text-slate-700 mb-1">Contribution Category *</label>
+              <select id="logCategory" required onchange="handleCategoryChange()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
                 <option value="0.25">Event Coverage (0.25 pt)</option>
                 <option value="0.75">InstaSeries / Event Post (0.75 pt)</option>
                 <option value="1.25">Yearbook Subcommittee Member (1.25 pt)</option>
                 <option value="1.50">Yearbook IC / Ultrasnappedpics / Socials Managers (1.50 pt)</option>
+                <option value="custom">Other / Custom</option>
               </select>
             </div>
+
+            <!-- Points Input (Read-only for presets, editable for Other/Custom) -->
             <div>
-              <label class="block font-medium text-slate-700 mb-1">Post / Event \*</label>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block font-medium text-slate-700">Points *</label>
+                <span id="pointsModeBadge" class="text-[10px] text-slate-400 font-normal">Preset point value</span>
+              </div>
+              <input type="number" id="logPointsInput" step="0.05" min="0.05" max="20" value="0.25" required readonly class="w-full border border-slate-300 bg-slate-100 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500 transition" />
+            </div>
+
+            <!-- Field 1: Post / Event (Shown only for preset categories) -->
+            <div id="postEventFieldContainer">
+              <label class="block font-medium text-slate-700 mb-1">Post / Event *</label>
               <input type="text" id="logDescription" required placeholder="e.g. Welcome Tea Recap carousel" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
+
+            <!-- Field 2: Description / Reason (Shown only when 'Other / Custom' is selected) -->
+            <div id="customDescriptionContainer" class="hidden">
+              <label class="block font-medium text-purple-900 mb-1">Description / Reason *</label>
+              <input type="text" id="logCustomDescription" placeholder="e.g. Assisted with ad-hoc merchandise design" class="w-full border border-purple-300 bg-purple-50/20 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-purple-500 outline-none" />
+            </div>
+
             <div>
               <label class="block font-medium text-slate-700 mb-1">Date Completed</label>
               <input type="date" id="logDate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none" />
@@ -287,6 +316,7 @@
             </button>
           </form>
         </div>
+
         <!-- Member Directory & Point Summaries -->
         <div class="lg:col-span-2 space-y-6">
           <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
@@ -307,6 +337,7 @@
               </table>
             </div>
           </div>
+
           <!-- Activity Log -->
           <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
             <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
@@ -334,24 +365,25 @@
   </main>
 
   <!-- ============================================================== -->
-  <!-- MODAL: ADD / EDIT POST -->
+  <!-- MODALS -->
   <!-- ============================================================== -->
-  <div id="postModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+
+  <!-- Modal: Add Post -->
+  <div id="addPostModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
       <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-        <h3 id="postModalTitle" class="text-base font-bold text-slate-900 flex items-center space-x-2">
+        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
           <i class="fa-solid fa-bullhorn text-blue-600"></i><span>Schedule Publicity Post</span>
         </h3>
-        <button onclick="closeModal('postModal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+        <button onclick="closeModal('addPostModal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
       </div>
-      <form id="postForm" onsubmit="handleSavePost(event)" class="space-y-3 text-xs">
-        <input type="hidden" id="editPostId" value="" />
+      <form onsubmit="handleSavePost(event)" class="space-y-3 text-xs">
         <div>
-          <label class="block font-medium text-slate-700 mb-1">Post Title / Topic \*</label>
+          <label class="block font-medium text-slate-700 mb-1">Post Title / Topic *</label>
           <input type="text" id="postTopic" required placeholder="e.g. Welfare Pack Giveaway" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
         <div>
-          <label class="block font-medium text-slate-700 mb-1">Platform \*</label>
+          <label class="block font-medium text-slate-700 mb-1">Platform *</label>
           <select id="postPlatform" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500">
             <option value="Instagram">Instagram</option>
             <option value="Telegram">Telegram</option>
@@ -361,11 +393,11 @@
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-medium text-orange-700 mb-1">Internal Due (Vetting) \*</label>
+            <label class="block font-medium text-orange-700 mb-1">Internal Due (Vetting) *</label>
             <input type="date" id="postInternalDate" required class="w-full border border-orange-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-orange-500 bg-orange-50/30" />
           </div>
           <div>
-            <label class="block font-medium text-blue-700 mb-1">Target Post Date \*</label>
+            <label class="block font-medium text-blue-700 mb-1">Target Post Date *</label>
             <input type="date" id="postTargetDate" required class="w-full border border-blue-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50/30" />
           </div>
         </div>
@@ -374,31 +406,75 @@
           <input type="text" id="postPic" placeholder="e.g. Sarah (or leave blank for reservation)" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
         <div class="flex justify-end space-x-2 pt-2">
-          <button type="button" onclick="closeModal('postModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
+          <button type="button" onclick="closeModal('addPostModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
           <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow">Save Post</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ============================================================== -->
-  <!-- MODAL: ADD / EDIT TASK -->
-  <!-- ============================================================== -->
-  <div id="taskModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+  <!-- Modal: Edit Post -->
+  <div id="editPostModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
       <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-        <h3 id="taskModalTitle" class="text-base font-bold text-slate-900 flex items-center space-x-2">
-          <i class="fa-solid fa-list-check text-emerald-600"></i><span>New Miscellaneous Task</span>
+        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+          <i class="fa-solid fa-pen-to-square text-blue-600"></i><span>Edit Publicity Post</span>
         </h3>
-        <button onclick="closeModal('taskModal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+        <button onclick="closeModal('editPostModal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
       </div>
-      <form id="taskForm" onsubmit="handleSaveTask(event)" class="space-y-3 text-xs">
-        <input type="hidden" id="editTaskId" value="" />
+      <form onsubmit="handleUpdatePost(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="editPostId" />
         <div>
-          <label class="block font-medium text-slate-700 mb-1">Task Title \*</label>          <input type="text" id="taskTitle" required placeholder="e.g. Yearbook subcommittee interview layout" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
+          <label class="block font-medium text-slate-700 mb-1">Post Title / Topic *</label>
+          <input type="text" id="editPostTopic" required class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
         <div>
-          <label class="block font-medium text-slate-700 mb-1">Category \*</label>
+          <label class="block font-medium text-slate-700 mb-1">Platform *</label>
+          <select id="editPostPlatform" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="Instagram">Instagram</option>
+            <option value="Telegram">Telegram</option>
+            <option value="Instagram &amp; Telegram">Instagram &amp; Telegram</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-orange-700 mb-1">Internal Due (Vetting) *</label>
+            <input type="date" id="editPostInternalDate" required class="w-full border border-orange-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-orange-500 bg-orange-50/30" />
+          </div>
+          <div>
+            <label class="block font-medium text-blue-700 mb-1">Target Post Date *</label>
+            <input type="date" id="editPostTargetDate" required class="w-full border border-blue-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50/30" />
+          </div>
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Assigned PIC</label>
+          <input type="text" id="editPostPic" placeholder="Unassigned" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeModal('editPostModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add Misc Task -->
+  <div id="addTaskModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+          <i class="fa-solid fa-list-check text-emerald-600"></i><span>New Miscellaneous Task</span>
+        </h3>
+        <button onclick="closeModal('addTaskModal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+      </div>
+      <form onsubmit="handleSaveTask(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Task Title *</label>
+          <input type="text" id="taskTitle" required placeholder="e.g. Subcommittee photoshoot" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Category *</label>
           <select id="taskCategory" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500">
             <option value="ultrasnappedpics">ultrasnappedpics</option>
             <option value="yearbook">yearbook</option>
@@ -406,7 +482,7 @@
           </select>
         </div>
         <div>
-          <label class="block font-medium text-slate-700 mb-1">Due Date \*</label>
+          <label class="block font-medium text-slate-700 mb-1">Due Date *</label>
           <input type="date" id="taskDueDate" required class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
         </div>
         <div>
@@ -418,25 +494,105 @@
           <textarea id="taskNotes" rows="2" placeholder="e.g. Google Drive draft folder link" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
         </div>
         <div class="flex justify-end space-x-2 pt-2">
-          <button type="button" onclick="closeModal('taskModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
+          <button type="button" onclick="closeModal('addTaskModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
           <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-semibold shadow">Save Task</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ============================================================== -->
-  <!-- MODAL: EXCO ADMIN & SUCCESSION HANDOVER -->
-  <!-- ============================================================== -->
+  <!-- Modal: Edit Task -->
+  <div id="editTaskModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+          <i class="fa-solid fa-pen-to-square text-emerald-600"></i><span>Edit Task</span>
+        </h3>
+        <button onclick="closeModal('editTaskModal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+      </div>
+      <form onsubmit="handleUpdateTask(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="editTaskId" />
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Task Title *</label>
+          <input type="text" id="editTaskTitle" required class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Category *</label>
+          <select id="editTaskCategory" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="ultrasnappedpics">ultrasnappedpics</option>
+            <option value="yearbook">yearbook</option>
+            <option value="other">other</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Due Date *</label>
+          <input type="date" id="editTaskDueDate" required class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Assigned Member(s)</label>
+          <input type="text" id="editTaskAssignee" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Notes / Link (Optional)</label>
+          <textarea id="editTaskNotes" rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeModal('editTaskModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-semibold shadow">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Edit Points Entry -->
+  <div id="editPointModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+          <i class="fa-solid fa-pen-to-square text-blue-600"></i><span>Edit Point Entry</span>
+        </h3>
+        <button onclick="closeModal('editPointModal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+      </div>
+      <form onsubmit="handleUpdatePointLog(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="editPointId" />
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Subcommer Name *</label>
+          <input type="text" id="editPointMember" required class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Activity / Reason Description *</label>
+          <input type="text" id="editPointDesc" required class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Points *</label>
+            <input type="number" id="editPointValue" step="0.05" min="0.05" max="20" required class="w-full border border-blue-300 bg-blue-50/20 font-bold text-blue-900 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Date Completed</label>
+            <input type="date" id="editPointDate" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+        </div>
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeModal('editPointModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow">Update Points</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Exco Admin & Succession Handover -->
   <div id="adminModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
       <div class="flex justify-between items-center border-b border-slate-100 pb-3">
         <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-          <i class="fa-solid fa-shield-halved text-amber-500"></i>
+          <i class="fa-solid fa-lock text-amber-500"></i>
           <span>Exco Succession &amp; Calendar Admin</span>
         </h3>
         <button onclick="closeModal('adminModal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
       </div>
+
+      <!-- Auth State Section -->
       <div id="adminAuthLock" class="space-y-3 py-2">
         <p class="text-xs text-slate-600">Enter the Exco Master PIN to access succession handover controls and calendar date management.</p>
         <div class="flex items-center space-x-2">
@@ -445,6 +601,8 @@
         </div>
         <p id="adminPinError" class="text-[11px] text-rose-600 hidden font-medium">Incorrect PIN. Try again.</p>
       </div>
+
+      <!-- Unlocked Admin Controls -->
       <div id="adminUnlockedContent" class="hidden space-y-5 text-xs">
         <div class="flex border-b border-slate-200">
           <button onclick="switchAdminSubTab('dates')" id="btn-sub-dates" class="pb-2 font-bold text-blue-600 border-b-2 border-blue-600 px-3">
@@ -457,8 +615,10 @@
             Security PIN
           </button>
         </div>
+
+        <!-- 1. Academic Dates Manager -->
         <div id="subtab-dates" class="space-y-3">
-          <p class="text-slate-500 text-[11px]">Add or customize new NTU term dates, recess weeks, or public holidays for your term.</p>
+          <p class="text-slate-500 text-[11px]">Add or customize NTU term dates, recess weeks, or public holidays.</p>
           <form onsubmit="handleAddAcademicEvent(event)" class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
             <div class="grid grid-cols-2 gap-2">
               <input type="text" id="newEventName" placeholder="Event Name (e.g. Recess Week)" required class="border border-slate-300 rounded px-2.5 py-1.5 text-xs outline-none" />
@@ -481,6 +641,8 @@
             <div id="academicEventsList" class="p-2 space-y-1"></div>
           </div>
         </div>
+
+        <!-- 2. Clean Slate Handover -->
         <div id="subtab-reset" class="hidden space-y-3">
           <div class="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-900 space-y-1">
             <h4 class="font-bold flex items-center space-x-1.5">
@@ -488,10 +650,911 @@
               <span>Succession Handover: Clean Slate</span>
             </h4>
             <p class="text-[11px] leading-relaxed">
-              This action removes all existing posts, tasks, reservations, and member points.
+              When handing over to the incoming publicity head, this action removes all posts, tasks, reservations, and member points from both this device and the live Firebase cloud database—resetting the portal to 0 members for everyone.
             </p>
           </div>
           <div class="space-y-2 pt-1">
             <label class="block font-medium text-slate-700">Type <span class="font-bold text-rose-600">RESET</span> to confirm handover:</label>
             <input type="text" id="resetConfirmationInput" placeholder="RESET" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-rose-500 uppercase" />
-            <button onclick="handleCleanSlateReset()" class="w-full py-2.5 bg-rose-600 
+            <button onclick="handleCleanSlateReset()" class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-xs shadow">
+              Wipe Cloud Database &amp; Reset to Clean Slate (0 Members)
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Change PIN -->
+        <div id="subtab-pin" class="hidden space-y-3">
+          <p class="text-slate-500 text-[11px]">Set a new master PIN for the next team so only authorized Exco leads can manage calendar dates or reset data.</p>
+          <div class="space-y-2">
+            <input type="password" id="newMasterPin" placeholder="Enter New PIN" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-amber-500" />
+            <button onclick="handleUpdatePin()" class="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg text-xs shadow">
+              Update Exco PIN
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- APPLICATION SCRIPT & FIREBASE REALTIME DATABASE SYNC -->
+  <!-- ============================================================== -->
+  <script>
+    // -----------------------------------------------------------------
+    // 1. FIREBASE CONFIGURATION & INITIALIZATION
+    // -----------------------------------------------------------------
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVEK_KurtzW1k7UTdKimnkG9FP8iWuBis",
+      authDomain: "ntuusp-publicity-portal.firebaseapp.com",
+      databaseURL: "https://ntuusp-publicity-portal-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "ntuusp-publicity-portal",
+      storageBucket: "ntuusp-publicity-portal.firebasestorage.app",
+      messagingSenderId: "1020851819679",
+      appId: "1:1020851819679:web:f2714f087ce7c02d00beaa"
+    };
+
+    // Initialize Firebase App
+    firebase.initializeApp(firebaseConfig);
+
+    // Initialize Firebase App Check only if valid key provided
+    const reCaptchaKey = '6LfqvNkqAAAAAIfs_example_replace_with_your_site_key';
+    if (reCaptchaKey && !reCaptchaKey.includes('example')) {
+      try {
+        const appCheck = firebase.appCheck();
+        appCheck.activate(
+          new firebase.appCheck.ReCaptchaV3Provider(reCaptchaKey),
+          true
+        );
+        console.log("Firebase App Check initialized successfully.");
+      } catch (e) {
+        console.warn("App Check initialization note:", e);
+      }
+    }
+
+    const db = firebase.database();
+
+    // Default Academic Calendar Events
+    const DEFAULT_ACAD_EVENTS = [
+      { id: 'h1', title: 'National Day', type: 'holiday', start: '2026-08-09', end: '2026-08-09' },
+      { id: 'h2', title: 'Deepavali', type: 'holiday', start: '2026-11-08', end: '2026-11-08' },
+      { id: 'h3', title: 'Christmas Day', type: 'holiday', start: '2026-12-25', end: '2026-12-25' },
+      { id: 'h4', title: 'New Year Day', type: 'holiday', start: '2027-01-01', end: '2027-01-01' },
+      { id: 'h5', title: 'Chinese New Year', type: 'holiday', start: '2027-02-06', end: '2027-02-07' },
+      { id: 'h6', title: 'Good Friday', type: 'holiday', start: '2027-03-26', end: '2027-03-26' },
+      { id: 'h7', title: 'Hari Raya Puasa', type: 'holiday', start: '2027-03-10', end: '2027-03-10' },
+      { id: 'h8', title: 'Labour Day', type: 'holiday', start: '2027-05-01', end: '2027-05-01' },
+      { id: 'h9', title: 'Vesak Day', type: 'holiday', start: '2027-05-20', end: '2027-05-20' },
+      { id: 'ntu1', title: 'Sem 1 Recess Week', type: 'recess', start: '2026-09-28', end: '2026-10-02' },
+      { id: 'ntu2', title: 'Sem 1 Revision & Finals', type: 'finals', start: '2026-11-16', end: '2026-12-04' },
+      { id: 'ntu3', title: 'Sem 2 Recess Week', type: 'recess', start: '2027-02-22', end: '2027-02-26' },
+      { id: 'ntu4', title: 'Sem 2 Revision & Finals', type: 'finals', start: '2027-04-19', end: '2027-05-07' },
+      { id: 'h10', title: 'National Day', type: 'holiday', start: '2027-08-09', end: '2027-08-09' },
+      { id: 'ntu5', title: 'AY27/28 Sem 1 Recess Week', type: 'recess', start: '2027-09-27', end: '2027-10-01' },
+      { id: 'ntu6', title: 'AY27/28 Sem 1 Finals', type: 'finals', start: '2027-11-15', end: '2027-12-03' }
+    ];
+
+    // Local in-memory state (mirrors Firebase in real time)
+    let posts = [];
+    let tasks = [];
+    let pointsLogs = [];
+    let acadEvents = DEFAULT_ACAD_EVENTS;
+    let excoPin = '1234';
+    let currentDate = new Date();
+
+    // -----------------------------------------------------------------
+    // 2. LIVE REAL-TIME CLOUD LISTENERS
+    // -----------------------------------------------------------------
+    document.addEventListener('DOMContentLoaded', () => {
+      // Set today's date in points form
+      const todayIso = new Date().toISOString().split('T')[0];
+      const logDateInput = document.getElementById('logDate');
+      if (logDateInput) logDateInput.value = todayIso;
+      handleCategoryChange();
+
+      // Listen for connection status
+      db.ref('.info/connected').on('value', snap => {
+        const badge = document.getElementById('cloudStatusBadge');
+        if (badge) {
+          if (snap.val() === true) {
+            badge.className = "inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-950 text-emerald-400 border border-emerald-700";
+            badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1"></span>Cloud Live`;
+          } else {
+            badge.className = "inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-950 text-rose-400 border border-rose-700";
+            badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-400 mr-1"></span>Offline`;
+          }
+        }
+      });
+
+      // Listen for Posts updates
+      db.ref('posts').on('value', snapshot => {
+        const val = snapshot.val();
+        posts = val ? (Array.isArray(val) ? val.filter(Boolean) : Object.values(val)) : [];
+        renderCalendar();
+        renderProgressTable();
+        renderReservationTable();
+      });
+
+      // Listen for Tasks updates
+      db.ref('tasks').on('value', snapshot => {
+        const val = snapshot.val();
+        tasks = val ? (Array.isArray(val) ? val.filter(Boolean) : Object.values(val)) : [];
+        renderCalendar();
+        renderTasksTable();
+      });
+
+      // Listen for Points Logs updates
+      db.ref('pointsLogs').on('value', snapshot => {
+        const val = snapshot.val();
+        pointsLogs = val ? (Array.isArray(val) ? val.filter(Boolean) : Object.values(val)) : [];
+        renderPointsDashboard();
+      });
+
+      // Listen for Academic Events updates
+      db.ref('acadEvents').on('value', snapshot => {
+        const val = snapshot.val();
+        if (val) {
+          acadEvents = Array.isArray(val) ? val.filter(Boolean) : Object.values(val);
+        } else {
+          db.ref('acadEvents').set(DEFAULT_ACAD_EVENTS);
+        }
+        renderCalendar();
+        renderAcademicEventsList();
+      });
+
+      // Listen for Exco PIN updates
+      db.ref('excoPin').on('value', snapshot => {
+        const val = snapshot.val();
+        if (val) {
+          excoPin = String(val);
+        } else {
+          db.ref('excoPin').set('1234');
+        }
+      });
+
+      // Listen for points input changes when in custom mode
+      document.getElementById('logPointsInput').addEventListener('input', () => {
+        const pts = parseFloat(document.getElementById('logPointsInput').value) || 0;
+        document.getElementById('previewPoints').innerText = `+${pts.toFixed(2)} pt`;
+      });
+    });
+
+    // Cloud Database Persistence Helpers
+    function syncPostsToCloud() { db.ref('posts').set(posts); }
+    function syncTasksToCloud() { db.ref('tasks').set(tasks); }
+    function syncPointsToCloud() { db.ref('pointsLogs').set(pointsLogs); }
+    function syncAcadEventsToCloud() { db.ref('acadEvents').set(acadEvents); }
+    function syncPinToCloud() { db.ref('excoPin').set(excoPin); }
+
+    // Tab Navigation
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white');
+        btn.classList.add('text-slate-300');
+      });
+      const activeView = document.getElementById(`view-${tabId}`);
+      const activeBtn = document.getElementById(`tab-${tabId}`);
+      if (activeView) activeView.classList.remove('hidden');
+      if (activeBtn) {
+        activeBtn.classList.add('bg-blue-600', 'text-white');
+        activeBtn.classList.remove('text-slate-300');
+      }
+      if (tabId === 'calendar') renderCalendar();
+      if (tabId === 'progress') { renderProgressTable(); renderTasksTable(); }
+      if (tabId === 'reservation') renderReservationTable();
+      if (tabId === 'points') renderPointsDashboard();
+    }
+
+    // Modal Helpers
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    function openAddPostModal(date = '') {
+      if (date) {
+        document.getElementById('postTargetDate').value = date;
+        document.getElementById('postInternalDate').value = date;
+      }
+      openModal('addPostModal');
+    }
+    function openAddTaskModal() { openModal('addTaskModal'); }
+
+    // ==========================================
+    // 3. CALENDAR GENERATION
+    // ==========================================
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const titleElem = document.getElementById('calendarMonthYear');
+      if (titleElem) titleElem.innerText = `${monthNames[month]} ${year}`;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInPrevMonth = new Date(year, month, 0).getDate();
+      const grid = document.getElementById('calendarGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      // Previous month padding
+      for (let i = firstDay - 1; i >= 0; i--) {
+        const d = daysInPrevMonth - i;
+        const cell = document.createElement('div');
+        cell.className = 'bg-slate-50/50 p-1.5 min-h-[95px] text-slate-300 text-xs flex flex-col select-none';
+        cell.innerHTML = `<span>${d}</span>`;
+        grid.appendChild(cell);
+      }
+
+      // Current Month Days
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isToday = dateStr === todayStr;
+        const cell = document.createElement('div');
+        cell.className = `bg-white p-1.5 min-h-[95px] text-xs flex flex-col group relative transition-colors hover:bg-slate-50 ${isToday ? 'ring-2 ring-blue-500 z-10' : ''}`;
+
+        let dayHeader = `
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-bold ${isToday ? 'w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px]' : 'text-slate-700'}">${day}</span>
+            <button onclick="openAddPostModal('${dateStr}')" class="opacity-0 group-hover:opacity-100 text-[10px] text-blue-600 hover:text-blue-800 transition">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+        `;
+
+        let badgesHtml = '<div class="space-y-1 overflow-y-auto max-h-[75px]">';
+
+        // Academic Milestones
+        acadEvents.forEach(evt => {
+          if (dateStr >= evt.start && dateStr <= evt.end) {
+            let color = 'bg-purple-100 text-purple-800 border-purple-200';
+            if (evt.type === 'holiday') color = 'bg-amber-100 text-amber-800 border-amber-200';
+            if (evt.type === 'revision' || evt.type === 'finals') color = 'bg-rose-100 text-rose-800 border-rose-200';
+            badgesHtml += `<div class="px-1.5 py-0.5 rounded text-[10px] font-semibold border truncate ${color}" title="${evt.title}">${evt.title}</div>`;
+          }
+        });
+
+        // Submission Deadlines & Post Dates
+        posts.forEach(p => {
+          if (p.internalDate === dateStr) {
+            badgesHtml += `<div onclick="openEditPostModal('${p.id}')" class="cursor-pointer px-1.5 py-0.5 rounded text-[10px] bg-orange-100 text-orange-900 border border-orange-300 font-medium truncate hover:opacity-80" title="Draft Due: ${p.topic}">
+              <i class="fa-solid fa-file-pen mr-1 text-orange-600"></i>${p.topic}
+            </div>`;
+          }
+          if (p.targetDate === dateStr) {
+            badgesHtml += `<div onclick="openEditPostModal('${p.id}')" class="cursor-pointer px-1.5 py-0.5 rounded text-[10px] bg-blue-100 text-blue-900 border border-blue-300 font-semibold truncate hover:opacity-80" title="Post: ${p.topic} (${p.platform})">
+              <i class="fa-solid fa-upload mr-1 text-blue-600"></i>${p.topic}
+            </div>`;
+          }
+        });
+
+        // Miscellaneous Tasks Due
+        tasks.forEach(t => {
+          if (t.dueDate === dateStr) {
+            badgesHtml += `<div onclick="openEditTaskModal('${t.id}')" class="cursor-pointer px-1.5 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-900 border border-emerald-300 font-medium truncate hover:opacity-80" title="Task Due: ${t.title}">
+              <i class="fa-solid fa-check mr-1 text-emerald-600"></i>${t.title}
+            </div>`;
+          }
+        });
+
+        badgesHtml += '</div>';
+        cell.innerHTML = dayHeader + badgesHtml;
+        grid.appendChild(cell);
+      }
+
+      // Next month padding
+      const totalCells = firstDay + daysInMonth;
+      const nextMonthPadding = (7 - (totalCells % 7)) % 7;
+      for (let day = 1; day <= nextMonthPadding; day++) {
+        const cell = document.createElement('div');
+        cell.className = 'bg-slate-50/50 p-1.5 min-h-[95px] text-slate-300 text-xs flex flex-col select-none';
+        cell.innerHTML = `<span>${day}</span>`;
+        grid.appendChild(cell);
+      }
+    }
+
+    function prevMonth() { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); }
+    function nextMonth() { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); }
+    function goToToday() { currentDate = new Date(); renderCalendar(); }
+
+    // ==========================================
+    // 4. POST OPERATIONS (CREATE, EDIT, DELETE)
+    // ==========================================
+    function handleSavePost(e) {
+      e.preventDefault();
+      const topic = document.getElementById('postTopic').value.trim();
+      const platform = document.getElementById('postPlatform').value;
+      const internalDate = document.getElementById('postInternalDate').value;
+      const targetDate = document.getElementById('postTargetDate').value;
+      const pic = document.getElementById('postPic').value.trim();
+
+      const newPost = {
+        id: 'post_' + Date.now(),
+        topic,
+        platform,
+        internalDate,
+        targetDate,
+        pic: pic || 'Unassigned',
+        designStatus: 'Not Started',
+        captionStatus: 'Not Started',
+        reviewPhase: 'Pending Draft',
+        uploadStatus: 'Not Scheduled',
+        interested: []
+      };
+
+      posts.push(newPost);
+      syncPostsToCloud();
+      closeModal('addPostModal');
+      document.getElementById('postTopic').value = '';
+      document.getElementById('postPic').value = '';
+    }
+
+    function openEditPostModal(id) {
+      const p = posts.find(item => item.id === id);
+      if (!p) return;
+      document.getElementById('editPostId').value = p.id;
+      document.getElementById('editPostTopic').value = p.topic;
+      document.getElementById('editPostPlatform').value = p.platform;
+      document.getElementById('editPostInternalDate').value = p.internalDate;
+      document.getElementById('editPostTargetDate').value = p.targetDate;
+      document.getElementById('editPostPic').value = (p.pic === 'Unassigned' ? '' : p.pic);
+      openModal('editPostModal');
+    }
+
+    function handleUpdatePost(e) {
+      e.preventDefault();
+      const id = document.getElementById('editPostId').value;
+      const p = posts.find(item => item.id === id);
+      if (p) {
+        p.topic = document.getElementById('editPostTopic').value.trim();
+        p.platform = document.getElementById('editPostPlatform').value;
+        p.internalDate = document.getElementById('editPostInternalDate').value;
+        p.targetDate = document.getElementById('editPostTargetDate').value;
+        const picVal = document.getElementById('editPostPic').value.trim();
+        p.pic = picVal || 'Unassigned';
+        syncPostsToCloud();
+      }
+      closeModal('editPostModal');
+    }
+
+    function updatePostField(id, field, value) {
+      const p = posts.find(item => item.id === id);
+      if (p) {
+        p[field] = value;
+        syncPostsToCloud();
+      }
+    }
+
+    function deletePost(id) {
+      if (!confirm('Are you sure you want to remove this post?')) return;
+      posts = posts.filter(item => item.id !== id);
+      syncPostsToCloud();
+    }
+
+    function renderProgressTable() {
+      const tbody = document.getElementById('progressTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      if (posts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-6 text-slate-400 italic">No posts scheduled. Click "New Post" to start.</td></tr>`;
+        return;
+      }
+
+      posts.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/70 transition';
+        tr.innerHTML = `
+          <td class="py-2 px-3 font-semibold text-slate-900">${p.topic}</td>
+          <td class="py-2 px-2 text-slate-600 text-[11px]">${p.platform}</td>
+          <td class="py-2 px-2 text-orange-700 font-medium whitespace-nowrap text-[11px]">${p.internalDate || '-'}</td>
+          <td class="py-2 px-2 text-blue-700 font-medium whitespace-nowrap text-[11px]">${p.targetDate || '-'}</td>
+          <td class="py-2 px-2 font-medium text-slate-800 text-[11px]">${p.pic}</td>
+          <td class="py-2 px-2">
+            <select onchange="updatePostField('${p.id}', 'designStatus', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-[11px] outline-none">
+              <option ${p.designStatus === 'Not Started' ? 'selected' : ''}>Not Started</option>
+              <option ${p.designStatus === 'In Progress' ? 'selected' : ''}>In Progress</option>
+              <option ${p.designStatus === 'Completed' ? 'selected' : ''}>Completed</option>
+            </select>
+          </td>
+          <td class="py-2 px-2">
+            <select onchange="updatePostField('${p.id}', 'reviewPhase', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-[11px] font-semibold outline-none ${p.reviewPhase === 'Approved' ? 'text-emerald-600' : 'text-amber-600'}">
+              <option ${p.reviewPhase === 'Pending Draft' ? 'selected' : ''}>Pending Draft</option>
+              <option ${p.reviewPhase === 'Vetting' ? 'selected' : ''}>Vetting</option>
+              <option ${p.reviewPhase === 'Pending Edits' ? 'selected' : ''}>Pending Edits</option>
+              <option ${p.reviewPhase === 'Approved' ? 'selected' : ''}>Approved</option>
+            </select>
+          </td>
+          <td class="py-2 px-2">
+            <select onchange="updatePostField('${p.id}', 'uploadStatus', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-[11px] outline-none">
+              <option ${p.uploadStatus === 'Not Scheduled' ? 'selected' : ''}>Not Scheduled</option>
+              <option ${p.uploadStatus === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
+              <option ${p.uploadStatus === 'Published' ? 'selected' : ''}>Published</option>
+            </select>
+          </td>
+          <td class="py-2 px-2 text-center whitespace-nowrap space-x-1">
+            <button onclick="openEditPostModal('${p.id}')" class="text-blue-500 hover:text-blue-700" title="Edit Post"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button onclick="deletePost('${p.id}')" class="text-rose-500 hover:text-rose-700" title="Delete Post"><i class="fa-regular fa-trash-can"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ==========================================
+    // 5. MISC TASK OPERATIONS (CREATE, EDIT, DELETE)
+    // ==========================================
+    function handleSaveTask(e) {
+      e.preventDefault();
+      const title = document.getElementById('taskTitle').value.trim();
+      const category = document.getElementById('taskCategory').value;
+      const dueDate = document.getElementById('taskDueDate').value;
+      const assignee = document.getElementById('taskAssignee').value.trim();
+      const notes = document.getElementById('taskNotes').value.trim();
+
+      const newTask = {
+        id: 'task_' + Date.now(),
+        title,
+        category,
+        dueDate,
+        assignee: assignee || 'Unassigned',
+        status: 'In Progress',
+        notes
+      };
+
+      tasks.push(newTask);
+      syncTasksToCloud();
+      closeModal('addTaskModal');
+      document.getElementById('taskTitle').value = '';
+      document.getElementById('taskAssignee').value = '';
+      document.getElementById('taskNotes').value = '';
+    }
+
+    function openEditTaskModal(id) {
+      const t = tasks.find(item => item.id === id);
+      if (!t) return;
+      document.getElementById('editTaskId').value = t.id;
+      document.getElementById('editTaskTitle').value = t.title;
+      document.getElementById('editTaskCategory').value = t.category;
+      document.getElementById('editTaskDueDate').value = t.dueDate;
+      document.getElementById('editTaskAssignee').value = (t.assignee === 'Unassigned' ? '' : t.assignee);
+      document.getElementById('editTaskNotes').value = t.notes || '';
+      openModal('editTaskModal');
+    }
+
+    function handleUpdateTask(e) {
+      e.preventDefault();
+      const id = document.getElementById('editTaskId').value;
+      const t = tasks.find(item => item.id === id);
+      if (t) {
+        t.title = document.getElementById('editTaskTitle').value.trim();
+        t.category = document.getElementById('editTaskCategory').value;
+        t.dueDate = document.getElementById('editTaskDueDate').value;
+        const assigneeVal = document.getElementById('editTaskAssignee').value.trim();
+        t.assignee = assigneeVal || 'Unassigned';
+        t.notes = document.getElementById('editTaskNotes').value.trim();
+        syncTasksToCloud();
+      }
+      closeModal('editTaskModal');
+    }
+
+    function updateTaskStatus(id, status) {
+      const t = tasks.find(item => item.id === id);
+      if (t) {
+        t.status = status;
+        syncTasksToCloud();
+      }
+    }
+
+    function deleteTask(id) {
+      if (!confirm('Remove this task?')) return;
+      tasks = tasks.filter(item => item.id !== id);
+      syncTasksToCloud();
+    }
+
+    function renderTasksTable() {
+      const tbody = document.getElementById('tasksTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      if (tasks.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400 italic">No tasks logged. Click "New Task" to record one.</td></tr>`;
+        return;
+      }
+
+      tasks.forEach(t => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/70 transition';
+        tr.innerHTML = `
+          <td class="py-2 px-3 font-semibold text-slate-900">${t.title}</td>
+          <td class="py-2 px-2"><span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-semibold">${t.category}</span></td>
+          <td class="py-2 px-2 text-emerald-800 font-semibold whitespace-nowrap text-[11px]">${t.dueDate}</td>
+          <td class="py-2 px-2 font-medium text-slate-800 text-[11px]">${t.assignee}</td>
+          <td class="py-2 px-2">
+            <select onchange="updateTaskStatus('${t.id}', this.value)" class="border border-slate-200 rounded px-1.5 py-0.5 text-[11px] font-semibold outline-none ${t.status === 'Completed' ? 'text-emerald-600' : 'text-slate-700'}">
+              <option ${t.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+              <option ${t.status === 'Review' ? 'selected' : ''}>Review</option>
+              <option ${t.status === 'Completed' ? 'selected' : ''}>Completed</option>
+            </select>
+          </td>
+          <td class="py-2 px-2 text-slate-500 text-[11px] truncate max-w-[140px]" title="${t.notes || ''}">${t.notes || '-'}</td>
+          <td class="py-2 px-2 text-center whitespace-nowrap space-x-1">
+            <button onclick="openEditTaskModal('${t.id}')" class="text-blue-500 hover:text-blue-700" title="Edit Task"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button onclick="deleteTask('${t.id}')" class="text-rose-500 hover:text-rose-700" title="Delete Task"><i class="fa-regular fa-trash-can"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ==========================================
+    // 6. RESERVATIONS & ALLOCATIONS
+    // ==========================================
+    function renderReservationTable() {
+      const tbody = document.getElementById('reservationTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      if (posts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400 italic">No posts available for reservation yet. Add posts in Calendar or Progress tab!</td></tr>`;
+        return;
+      }
+
+      posts.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/70 transition';
+        const interestedList = (p.interested && p.interested.length > 0)
+          ? p.interested.map(name => `<span class="inline-flex items-center px-2 py-0.5 bg-slate-100 rounded text-slate-700 font-medium mr-1 mb-1 text-xs">${name}<button onclick="removeInterest('${p.id}', '${name}')" class="ml-1 text-slate-400 hover:text-rose-600 font-bold">&times;</button></span>`).join('')
+          : '<span class="text-slate-400 italic">None yet</span>';
+
+        tr.innerHTML = `
+          <td class="py-3 px-3 font-semibold text-slate-900">${p.topic}</td>
+          <td class="py-3 px-3 text-slate-600">${p.platform}</td>
+          <td class="py-3 px-3 text-blue-700 font-medium">${p.targetDate}</td>
+          <td class="py-3 px-3">${interestedList}</td>
+          <td class="py-3 px-3">
+            <div class="flex items-center space-x-1">
+              <input type="text" id="reserve_input_${p.id}" placeholder="Your name" class="border border-slate-300 rounded px-2 py-1 text-xs w-28 outline-none focus:ring-1 focus:ring-blue-500" />
+              <button onclick="addInterest('${p.id}')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-900 text-white rounded text-xs font-semibold">Add</button>
+            </div>
+          </td>
+          <td class="py-3 px-3">
+            <div class="flex items-center space-x-1">
+              <input type="text" value="${p.pic === 'Unassigned' ? '' : p.pic}" placeholder="Official PIC" onchange="allocatePic('${p.id}', this.value)" class="border border-blue-200 bg-blue-50/40 rounded px-2.5 py-1 text-xs font-semibold text-blue-900 w-32 outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+          </td>
+          <td class="py-3 px-3 text-center space-x-2">
+            <button onclick="openEditPostModal('${p.id}')" class="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit</button>
+            <button onclick="clearReservations('${p.id}')" class="text-xs text-slate-400 hover:text-slate-600">Clear</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function addInterest(postId) {
+      const input = document.getElementById(`reserve_input_${postId}`);
+      const name = input.value.trim();
+      if (!name) return;
+      const p = posts.find(item => item.id === postId);
+      if (p) {
+        if (!p.interested) p.interested = [];
+        if (!p.interested.includes(name)) {
+          p.interested.push(name);
+          syncPostsToCloud();
+        }
+      }
+      input.value = '';
+    }
+
+    function removeInterest(postId, name) {
+      const p = posts.find(item => item.id === postId);
+      if (p && p.interested) {
+        p.interested = p.interested.filter(n => n !== name);
+        syncPostsToCloud();
+      }
+    }
+
+    function allocatePic(postId, newPic) {
+      const p = posts.find(item => item.id === postId);
+      if (p) {
+        p.pic = newPic.trim() || 'Unassigned';
+        syncPostsToCloud();
+      }
+    }
+
+    function clearReservations(postId) {
+      const p = posts.find(item => item.id === postId);
+      if (p) {
+        p.interested = [];
+        syncPostsToCloud();
+      }
+    }
+
+    // ==========================================
+    // 7. POINTS TRACKER LOGIC (PRESETS + OTHER/CUSTOM)
+    // ==========================================
+    function handleCategoryChange() {
+      const catVal = document.getElementById('logCategory').value;
+      const postEventContainer = document.getElementById('postEventFieldContainer');
+      const postEventInput = document.getElementById('logDescription');
+      const customDescContainer = document.getElementById('customDescriptionContainer');
+      const customDescInput = document.getElementById('logCustomDescription');
+      const pointsInput = document.getElementById('logPointsInput');
+      const modeBadge = document.getElementById('pointsModeBadge');
+
+      if (catVal === 'custom') {
+        // Hide standard post/event text field
+        postEventContainer.classList.add('hidden');
+        postEventInput.required = false;
+        postEventInput.value = '';
+
+        // Show custom description / reason field
+        customDescContainer.classList.remove('hidden');
+        customDescInput.required = true;
+
+        // Make points input editable
+        pointsInput.readOnly = false;
+        pointsInput.className = "w-full border border-purple-300 bg-white rounded-lg px-3 py-2 text-xs font-bold text-purple-900 outline-none focus:ring-2 focus:ring-purple-500 transition";
+        pointsInput.value = "1.00";
+        modeBadge.innerText = "Editable custom points";
+        modeBadge.className = "text-[10px] text-purple-600 font-semibold";
+      } else {
+        // Show standard post/event text field
+        postEventContainer.classList.remove('hidden');
+        postEventInput.required = true;
+
+        // Hide custom description field
+        customDescContainer.classList.add('hidden');
+        customDescInput.required = false;
+        customDescInput.value = '';
+
+        // Lock points input to preset
+        pointsInput.readOnly = true;
+        pointsInput.className = "w-full border border-slate-300 bg-slate-100 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500 transition";
+        pointsInput.value = parseFloat(catVal).toFixed(2);
+        modeBadge.innerText = "Preset point value";
+        modeBadge.className = "text-[10px] text-slate-400 font-normal";
+      }
+
+      updatePointPreview();
+    }
+
+    function updatePointPreview() {
+      const pts = parseFloat(document.getElementById('logPointsInput').value) || 0;
+      document.getElementById('previewPoints').innerText = `+${pts.toFixed(2)} pt`;
+    }
+
+    function handleLogPoints(e) {
+      e.preventDefault();
+      const member = document.getElementById('logMemberName').value.trim();
+      const catVal = document.getElementById('logCategory').value;
+      const points = parseFloat(document.getElementById('logPointsInput').value) || 0;
+
+      let categoryDesc = "";
+      let desc = "";
+
+      if (catVal === 'custom') {
+        categoryDesc = 'Other / Custom';
+        desc = document.getElementById('logCustomDescription').value.trim() || 'Custom Contribution';
+      } else {
+        categoryDesc = document.getElementById('logCategory').selectedOptions[0].text.split('(')[0].trim();
+        desc = document.getElementById('logDescription').value.trim();
+      }
+
+      const date = document.getElementById('logDate').value || new Date().toISOString().split('T')[0];
+
+      const newLog = {
+        id: 'log_' + Date.now(),
+        member,
+        points,
+        categoryDesc,
+        desc,
+        date
+      };
+
+      pointsLogs.unshift(newLog);
+      syncPointsToCloud();
+
+      // Reset form
+      document.getElementById('logMemberName').value = '';
+      document.getElementById('logDescription').value = '';
+      document.getElementById('logCustomDescription').value = '';
+      document.getElementById('logCategory').value = '0.25';
+      handleCategoryChange();
+    }
+
+    // Edit Logged Points
+    function openEditPointLogModal(id) {
+      const log = pointsLogs.find(l => l.id === id);
+      if (!log) return;
+      document.getElementById('editPointId').value = log.id;
+      document.getElementById('editPointMember').value = log.member;
+      document.getElementById('editPointDesc').value = log.desc;
+      document.getElementById('editPointValue').value = log.points;
+      document.getElementById('editPointDate').value = log.date;
+      openModal('editPointModal');
+    }
+
+    function handleUpdatePointLog(e) {
+      e.preventDefault();
+      const id = document.getElementById('editPointId').value;
+      const log = pointsLogs.find(l => l.id === id);
+      if (log) {
+        log.member = document.getElementById('editPointMember').value.trim();
+        log.desc = document.getElementById('editPointDesc').value.trim();
+        log.points = parseFloat(document.getElementById('editPointValue').value) || 0;
+        log.date = document.getElementById('editPointDate').value;
+        syncPointsToCloud();
+      }
+      closeModal('editPointModal');
+    }
+
+    function renderPointsDashboard() {
+      // 1. Group points per member
+      const memberTotals = {};
+      const memberCount = {};
+      pointsLogs.forEach(entry => {
+        const mem = entry.member;
+        memberTotals[mem] = (memberTotals[mem] || 0) + entry.points;
+        memberCount[mem] = (memberCount[mem] || 0) + 1;
+      });
+
+      const memberTbody = document.getElementById('memberPointsTableBody');
+      if (memberTbody) {
+        memberTbody.innerHTML = '';
+        const memberList = Object.keys(memberTotals);
+        if (memberList.length === 0) {
+          memberTbody.innerHTML = `<tr><td colspan="3" class="text-center py-6 text-slate-400 italic">No points recorded yet. Fill out the form on the left to log points!</td></tr>`;
+        } else {
+          memberList.sort().forEach(m => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td class="py-2.5 px-3 font-bold text-slate-900">${m}</td>
+              <td class="py-2.5 px-3 text-slate-600">${memberCount[m]} contributions</td>
+              <td class="py-2.5 px-3 text-right font-bold text-blue-600 text-sm">${memberTotals[m].toFixed(2)} pts</td>
+            `;
+            memberTbody.appendChild(tr);
+          });
+        }
+      }
+
+      // 2. Activity history
+      const activityTbody = document.getElementById('activityLogTableBody');
+      if (activityTbody) {
+        activityTbody.innerHTML = '';
+        if (pointsLogs.length === 0) {
+          activityTbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-slate-400 italic">No activity yet.</td></tr>`;
+        } else {
+          pointsLogs.forEach(log => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td class="py-2 px-3 text-slate-500">${log.date}</td>
+              <td class="py-2 px-3 font-semibold text-slate-900">${log.member}</td>
+              <td class="py-2 px-3 text-slate-700">${log.desc} <span class="text-[10px] text-slate-400">(${log.categoryDesc})</span></td>
+              <td class="py-2 px-3 text-right font-bold text-blue-600">+${log.points.toFixed(2)}</td>
+              <td class="py-2 px-3 text-center whitespace-nowrap space-x-1.5">
+                <button onclick="openEditPointLogModal('${log.id}')" class="text-blue-500 hover:text-blue-700" title="Edit Entry"><i class="fa-solid fa-pen-to-square text-[11px]"></i></button>
+                <button onclick="deletePointLog('${log.id}')" class="text-slate-400 hover:text-rose-600" title="Delete"><i class="fa-solid fa-trash text-[11px]"></i></button>
+              </td>
+            `;
+            activityTbody.appendChild(tr);
+          });
+        }
+      }
+    }
+
+    function deletePointLog(id) {
+      if (!confirm('Remove this point entry?')) return;
+      pointsLogs = pointsLogs.filter(l => l.id !== id);
+      syncPointsToCloud();
+    }
+
+    // ==========================================
+    // 8. EXCO ADMIN & SUCCESSION CONTROLS
+    // ==========================================
+    function openAdminModal() {
+      document.getElementById('adminAuthLock').classList.remove('hidden');
+      document.getElementById('adminUnlockedContent').classList.add('hidden');
+      document.getElementById('adminPinInput').value = '';
+      document.getElementById('adminPinError').classList.add('hidden');
+      openModal('adminModal');
+    }
+
+    function verifyAdminPin() {
+      const entered = document.getElementById('adminPinInput').value;
+      if (entered === excoPin) {
+        document.getElementById('adminAuthLock').classList.add('hidden');
+        document.getElementById('adminUnlockedContent').classList.remove('hidden');
+        renderAcademicEventsList();
+      } else {
+        document.getElementById('adminPinError').classList.remove('hidden');
+      }
+    }
+
+    function switchAdminSubTab(subTab) {
+      ['dates', 'reset', 'pin'].forEach(tab => {
+        document.getElementById(`subtab-${tab}`).classList.add('hidden');
+        document.getElementById(`btn-sub-${tab}`).className = 'pb-2 font-semibold text-slate-500 hover:text-slate-800 px-3';
+      });
+      document.getElementById(`subtab-${subTab}`).classList.remove('hidden');
+      document.getElementById(`btn-sub-${subTab}`).className = 'pb-2 font-bold text-blue-600 border-b-2 border-blue-600 px-3';
+    }
+
+    function renderAcademicEventsList() {
+      const container = document.getElementById('academicEventsList');
+      if (!container) return;
+      container.innerHTML = '';
+      if (acadEvents.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 italic">No events configured.</p>`;
+        return;
+      }
+
+      acadEvents.forEach(evt => {
+        const item = document.createElement('div');
+        item.className = 'flex justify-between items-center text-xs p-1.5 hover:bg-slate-50 rounded';
+        item.innerHTML = `
+          <div>
+            <span class="font-semibold text-slate-800">${evt.title}</span>
+            <span class="text-[10px] text-slate-500 ml-1">(${evt.start} to ${evt.end})</span>
+          </div>
+          <button onclick="deleteAcademicEvent('${evt.id}')" class="text-rose-500 hover:text-rose-700 text-xs px-1">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function handleAddAcademicEvent(e) {
+      e.preventDefault();
+      const title = document.getElementById('newEventName').value.trim();
+      const type = document.getElementById('newEventType').value;
+      const start = document.getElementById('newEventStart').value;
+      const end = document.getElementById('newEventEnd').value;
+      if (!title || !start || !end) return;
+
+      acadEvents.push({
+        id: 'evt_' + Date.now(),
+        title,
+        type,
+        start,
+        end
+      });
+      syncAcadEventsToCloud();
+      document.getElementById('newEventName').value = '';
+    }
+
+    function deleteAcademicEvent(id) {
+      acadEvents = acadEvents.filter(e => e.id !== id);
+      syncAcadEventsToCloud();
+    }
+
+    function handleUpdatePin() {
+      const newPin = document.getElementById('newMasterPin').value.trim();
+      if (newPin.length < 4) {
+        alert('PIN should be at least 4 digits or characters.');
+        return;
+      }
+      excoPin = newPin;
+      syncPinToCloud();
+      document.getElementById('newMasterPin').value = '';
+      alert('Exco Master PIN updated successfully across the team!');
+    }
+
+    // Clean Slate Handover Reset (Wipes Cloud Database)
+    function handleCleanSlateReset() {
+      const confirmText = document.getElementById('resetConfirmationInput').value.trim();
+      if (confirmText !== 'RESET') {
+        alert('Please type RESET in capital letters to confirm the handover wipe.');
+        return;
+      }
+
+      // Wipe from Firebase Realtime Database
+      db.ref('posts').set([]);
+      db.ref('tasks').set([]);
+      db.ref('pointsLogs').set([]);
+
+      document.getElementById('resetConfirmationInput').value = '';
+      closeModal('adminModal');
+      alert('Clean Slate Applied! All previous member names, posts, and point totals have been wiped from Firebase. The portal is now reset for the new academic year.');
+    }
+  </script>
+</body>
+</html>
